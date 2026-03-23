@@ -1,0 +1,196 @@
+/* Container chính với nền Gradient */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a; /* Nền tối sang trọng */
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Các đốm màu chuyển động (Blobs) */
+.blob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.4;
+  animation: move 20s infinite alternate;
+}
+
+.blob-1 { top: -100px; left: -100px; }
+.blob-2 { bottom: -100px; right: -100px; background: #064e3b; animation-delay: -10s; }
+
+@keyframes move {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(100px, 100px) scale(1.2); }
+}
+
+/* Card đăng nhập hiệu ứng kính mờ (Glassmorphism) */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header thương hiệu */
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: #166534;
+  color: white;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 20px rgba(22, 101, 52, 0.4);
+}
+
+.brand-name {
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+.brand-sub {
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+/* Form inputs */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: #94a3b8;
+}
+
+.input-field-wrapper input {
+  width: 100%;
+  padding: 15px 15px 15px 45px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+
+.input-field-wrapper input:focus {
+  outline: none;
+  border-color: #166534;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(22, 101, 52, 0.2);
+}
+
+/* Nút bấm */
+.login-submit-btn {
+  padding: 15px;
+  background: #166534;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.login-submit-btn:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(22, 101, 52, 0.3);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Toast */
+.toast-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  z-index: 1000;
+  animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast-box.success { background: #10b981; }
+.toast-box.error { background: #ef4444; }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.login-footer {
+  margin-top: 30px;
+  color: #64748b;
+  font-size: 12px;
+}
