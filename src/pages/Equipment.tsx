@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
-  Plus, Shield, X, Check, RotateCcw, QrCode, Activity,  LayoutGrid, 
-  Package, HeartPulse, Building2, Undo2, ArrowRightCircle,
+  Plus, Shield, X, RotateCcw, QrCode, Activity,  LayoutGrid, 
+  Package, HeartPulse, Building2, Undo2, 
 } from 'lucide-react';
 import { supabase } from '../supabaseClient'; 
 
@@ -179,17 +179,20 @@ export default function Equipment() {
     };
   }, [logs, userRole, currentUsername]);
 
+  // COMPONENT LOG TABLE (RESPONSIVE)
   const LogTable = ({ title, data, icon: Icon }: { title: string, data: ChoMuonLog[], icon: any }) => (
-    <div style={styles.tableWrapper}>
+    <div className="table-section" style={styles.tableWrapper}>
       <div style={styles.tableHeaderStyle}><Icon size={20} color="#fbbf24" /> {title}</div>
-      <div style={{ overflowX: 'auto' }}>
+      
+      {/* View Table cho PC */}
+      <div className="desktop-table-view">
         <table style={styles.tableMain}>
           <thead>
             <tr>
               <th style={styles.thStyle}>THỜI GIAN</th>
               <th style={styles.thStyle}>NGƯỜI MƯỢN</th>
               <th style={styles.thStyle}>VẬT CHẤT</th>
-              <th style={styles.thStyle}>MÃ SÚNG / SL</th>
+              <th style={styles.thStyle}>MÃ / SL</th>
               <th style={styles.thStyle}>TRẠNG THÁI</th>
               {userRole === 'TEACHER' && <th style={styles.thStyle}>THAO TÁC</th>}
             </tr>
@@ -208,15 +211,35 @@ export default function Equipment() {
                 <td style={styles.tdStyle}><span style={log.TrangThai === 'Đã trả' ? styles.statusOk : styles.statusWait}>{log.TrangThai}</span></td>
                 {userRole === 'TEACHER' && log.TrangThai !== 'Đã trả' && (
                   <td style={styles.tdStyle}>
-                    <button onClick={() => setConfirmData(log)} style={styles.btnReturnSmall}>
-                       <Undo2 size={14} /> TRẢ ĐỒ
-                    </button>
+                    <button onClick={() => setConfirmData(log)} style={styles.btnReturnSmall}><Undo2 size={14} /> TRẢ</button>
                   </td>
                 )}
               </tr>
-            )) : <tr><td colSpan={6} style={{padding:'40px', textAlign:'center', color:'#6b7280'}}>Hệ thống chưa ghi nhận dữ liệu</td></tr>}
+            )) : <tr><td colSpan={6} style={{padding:'40px', textAlign:'center'}}>Chưa có dữ liệu</td></tr>}
           </tbody>
         </table>
+      </div>
+
+      {/* View Card cho Mobile */}
+      <div className="mobile-table-view" style={{display: 'none', flexDirection: 'column', gap: '10px', padding: '15px'}}>
+        {data.length > 0 ? data.map((log) => (
+          <div key={log.id} style={styles.mobileLogCard}>
+            <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>
+              <span style={{fontSize:'12px', color:'#94a3b8'}}>{new Date(log.NgayThang).toLocaleDateString('vi-VN')}</span>
+              <span style={log.TrangThai === 'Đã trả' ? styles.statusOk : styles.statusWait}>{log.TrangThai}</span>
+            </div>
+            <div style={{color:'#fff', fontWeight:'bold', fontSize:'15px'}}>{log.VatChat}</div>
+            <div style={{fontSize:'13px', margin:'5px 0'}}>{log.NguoiNhan}</div>
+            <div style={{marginTop:'10px'}}>
+               {log.MaVatChat ? (
+                  <div style={{display:'flex', flexWrap:'wrap', gap:'4px'}}>{log.MaVatChat.split(', ').map((m, i) => <span key={i} style={styles.vkBadge}>{m}</span>)}</div>
+                ) : <span style={{color: '#fbbf24', fontSize:'12px'}}>Số lượng: {log.SoLuong}</span>}
+            </div>
+            {userRole === 'TEACHER' && log.TrangThai !== 'Đã trả' && (
+              <button onClick={() => setConfirmData(log)} style={{...styles.btnReturnSmall, width:'100%', marginTop:'15px', justifyContent:'center'}}><Undo2 size={14} /> TRẢ VẬT CHẤT</button>
+            )}
+          </div>
+        )) : <div style={{textAlign:'center', padding:'20px', fontSize:'13px'}}>Chưa có dữ liệu</div>}
       </div>
     </div>
   );
@@ -226,25 +249,27 @@ export default function Equipment() {
       <div style={styles.gridOverlayStyle}></div>
       {toast && <div className="toast-animate" style={styles.toastStyle(toast.type)}>{toast.msg}</div>}
 
-      <div style={styles.headerSection}>
+      {/* Header gọn hơn trên Mobile */}
+      <div style={styles.headerSection} className="header-responsive">
         <div style={styles.logoWrapper}>
-          <Shield size={40} color="#fbbf24" style={{filter: 'drop-shadow(0 0 10px rgba(251,191,36,0.5))'}} />
+          <Shield size={32} color="#fbbf24" className="logo-icon" />
           <div>
-            <h1 style={styles.titleStyle}>HỆ THỐNG QUẢN TRỊ VẬT CHẤT</h1>
-            <p style={{fontSize: '11px', opacity: 0.6, margin: 0, letterSpacing: '2px', color: '#fff'}}>MILITARY LOGISTICS MANAGEMENT</p>
+            <h1 style={styles.titleStyle} className="title-responsive">QUẢN TRỊ VẬT CHẤT</h1>
+            <p style={styles.subTitleText}>MILITARY LOGISTICS</p>
           </div>
         </div>
       </div>
 
-      <div style={styles.tabRow}>
+      {/* Tab trượt được trên Mobile */}
+      <div style={styles.tabRow} className="tabs-scroll">
         <button onClick={() => setActiveTab('TRANG_BI')} style={activeTab === 'TRANG_BI' ? styles.tabActive : styles.tabInactive}>
-          <Package size={18} /> TRANG BỊ
+          <Package size={18} /> <span className="tab-text">TRANG BỊ</span>
         </button>
         <button onClick={() => setActiveTab('CO_SO')} style={activeTab === 'CO_SO' ? styles.tabActive : styles.tabInactive}>
-          <Building2 size={18} /> CƠ SỞ
+          <Building2 size={18} /> <span className="tab-text">CƠ SỞ</span>
         </button>
         <button onClick={() => setActiveTab('Y_TE')} style={activeTab === 'Y_TE' ? styles.tabActive : styles.tabInactive}>
-          <HeartPulse size={18} /> Y TẾ
+          <HeartPulse size={18} /> <span className="tab-text">Y TẾ</span>
         </button>
       </div>
 
@@ -255,45 +280,40 @@ export default function Equipment() {
             <div style={styles.stockNumberStyle}>{item.SoLuong} <span style={{fontSize: '14px', opacity: 0.4}}>/ {item.TongBanDau}</span></div>
             {userRole === 'TEACHER' && item.SoLuong > 0 && (
               <button onClick={() => setBorrowModal(item)} style={styles.btnBorrow}>
-                {isScannerRequired(item.VatChat) ? <><QrCode size={18}/> QUÉT MÃ VŨ KHÍ</> : <><Plus size={18}/> MƯỢN VẬT CHẤT</>}
+                {isScannerRequired(item.VatChat) ? <><QrCode size={18}/> QUÉT MÃ</> : <><Plus size={18}/> MƯỢN</>}
               </button>
             )}
           </div>
         ))}
       </div>
 
-      <div style={{display:'flex', flexDirection:'column', gap:'40px', position: 'relative', zIndex: 2}}>
-        <LogTable title="NHẬT KÝ VŨ KHÍ & KHÍ TÀI" data={filteredLogs.vuKhi} icon={Shield} />
-        <LogTable title="NHẬT KÝ MÁY BẮN TẬP KỸ THUẬT" data={filteredLogs.mayBan} icon={Activity} />
-        <LogTable title="NHẬT KÝ HẬU CẦN & VẬT TƯ KHÁC" data={filteredLogs.khac} icon={LayoutGrid} />
+      <div className="log-sections" style={{display:'flex', flexDirection:'column', gap:'30px', position: 'relative', zIndex: 2}}>
+        <LogTable title="NHẬT KÝ VŨ KHÍ" data={filteredLogs.vuKhi} icon={Shield} />
+        <LogTable title="NHẬT KÝ MÁY BẮN TẬP" data={filteredLogs.mayBan} icon={Activity} />
+        <LogTable title="NHẬT KÝ KHÁC" data={filteredLogs.khac} icon={LayoutGrid} />
       </div>
 
+      {/* Modals & Overlays giữ nguyên logic nhưng fix width mobile */}
       {borrowModal && (
         <div style={styles.overlayStyle}>
           <div className="modal-animate" style={styles.modalStyle}>
             <div style={styles.modalHeader}>
-              <h3 style={{display:'flex', alignItems:'center', gap:'10px', fontSize: '16px', margin: 0}}>
-                <ArrowRightCircle size={20}/> CẤP PHÁT: {borrowModal.VatChat.toUpperCase()}
-              </h3>
+              <h3 style={{fontSize: '14px', margin: 0}}>{borrowModal.VatChat}</h3>
               <X style={{cursor:'pointer'}} onClick={() => setBorrowModal(null)} />
             </div>
-            <div style={{padding:'30px'}}>
+            <div style={{padding:'20px'}}>
               {isScannerRequired(borrowModal.VatChat) ? (
                 <div style={styles.qrBoxStyle}>
                   <input ref={scanInputRef} type="text" onChange={handleAutoScanner} style={{position:'absolute', opacity:0}} autoFocus />
                   <div className="scanner-line"></div>
-                  <QrCode size={80} color="#fbbf24" style={{opacity:0.3}} />
-                  <p style={{fontSize:'12px', fontWeight:'bold', marginTop:'15px', color: '#fbbf24'}}>ĐANG CHỜ QUÉT MÃ...</p>
+                  <QrCode size={60} color="#fbbf24" style={{opacity:0.3}} />
+                  <p style={{fontSize:'11px', fontWeight:'bold', marginTop:'10px', color: '#fbbf24'}}>CHỜ QUÉT MÃ...</p>
                 </div>
               ) : (
-                <div style={{display:'flex', flexDirection:'column', gap:'20px'}}>
-                  <div>
-                    <label style={{fontSize: '12px', color: '#94a3b8', marginBottom: '8px', display: 'block'}}>SỐ LƯỢNG MƯỢN</label>
-                    <input type="number" value={borrowQty} min="1" max={borrowModal.SoLuong} onChange={(e) => setBorrowQty(Number(e.target.value))} style={styles.inputModern} />
-                  </div>
-                  <button onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} style={styles.btnPrimaryFull}>
-                    <Check size={18} /> XÁC NHẬN CẤP PHÁT
-                  </button>
+                <div style={{display:'flex', flexDirection:'column', gap:'15px'}}>
+                  <label style={{fontSize: '12px', color: '#94a3b8'}}>SỐ LƯỢNG MƯỢN</label>
+                  <input type="number" value={borrowQty} min="1" max={borrowModal.SoLuong} onChange={(e) => setBorrowQty(Number(e.target.value))} style={styles.inputModern} />
+                  <button onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} style={styles.btnPrimaryFull}>XÁC NHẬN</button>
                 </div>
               )}
             </div>
@@ -303,126 +323,104 @@ export default function Equipment() {
 
       {confirmData && (
         <div style={styles.overlayStyle}>
-          <div className="modal-animate" style={styles.modalStyle}>
-            <div style={{padding:'40px', textAlign:'center', background: '#022c22'}}>
-              <RotateCcw size={50} color="#fbbf24" style={{marginBottom:'20px'}}/>
-              <h3 style={{margin:'0 0 10px 0', color: '#fff'}}>THU HỒI VẬT CHẤT?</h3>
-              <p style={{color:'#94a3b8', fontSize:'14px'}}>{confirmData.VatChat}</p>
-              <div style={{display:'flex', gap:'15px', marginTop:'30px'}}>
-                <button onClick={executeReturn} style={styles.btnPrimaryFull}>XÁC NHẬN</button>
-                <button onClick={() => setConfirmData(null)} style={styles.btnSecondary}>HỦY BỎ</button>
+          <div className="modal-animate" style={{...styles.modalStyle, width: '90%', maxWidth:'400px'}}>
+            <div style={{padding:'30px', textAlign:'center', background: '#022c22'}}>
+              <RotateCcw size={40} color="#fbbf24" style={{marginBottom:'15px'}}/>
+              <h4 style={{color:'#fff', margin:'0 0 10px 0'}}>THU HỒI?</h4>
+              <p style={{color:'#94a3b8', fontSize:'13px'}}>{confirmData.VatChat}</p>
+              <div style={{display:'flex', gap:'10px', marginTop:'20px'}}>
+                <button onClick={executeReturn} style={styles.btnPrimaryFull}>TRẢ</button>
+                <button onClick={() => setConfirmData(null)} style={styles.btnSecondary}>HỦY</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* CSS RESPONSIVE BỔ SUNG */}
       <style>{`
-        .scanner-line { width: 100%; height: 2px; background: #fbbf24; position: absolute; animation: scan 2s infinite ease-in-out; box-shadow: 0 0 10px #fbbf24; }
+        .scanner-line { width: 100%; height: 2px; background: #fbbf24; position: absolute; animation: scan 2s infinite ease-in-out; }
         @keyframes scan { 0% { top: 10%; } 50% { top: 90%; } 100% { top: 10%; } }
-        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: #fbbf24 !important; }
+        .tabs-scroll { overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .tabs-scroll::-webkit-scrollbar { display: none; }
+        
+        /* RESPONSIVE QUYẾT ĐỊNH TẠI ĐÂY */
+        @media (max-width: 768px) {
+          .desktop-table-view { display: none !important; }
+          .mobile-table-view { display: flex !important; }
+          .title-responsive { fontSize: 1.2rem !important; }
+          .header-responsive { padding: 15px !important; }
+          .tab-text { font-size: 11px; }
+          .modal-style { width: 95% !important; }
+          .container-style { padding: 15px !important; }
+        }
+        
+        .card-hover:hover { transform: translateY(-5px); border-color: #fbbf24 !important; }
         .toast-animate { animation: slideIn 0.4s ease-out; }
-        .modal-animate { animation: zoomIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
     </div>
   );
 }
 
-// --- HỆ THỐNG STYLE ĐÃ ĐƯỢC FIX ---
 const styles: any = {
   containerStyle: { 
-    padding: '40px 20px', maxWidth: '1300px', margin: '0 auto', 
-    background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)', 
-    minHeight: '100vh', position: 'relative', color: '#cbd5e1' 
+    padding: '30px 15px', maxWidth: '1200px', margin: '0 auto', 
+    background: '#022c22', minHeight: '100vh', position: 'relative', color: '#cbd5e1', overflowX: 'hidden'
   },
   gridOverlayStyle: {
     position: 'absolute', inset: 0,
-    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
-    backgroundSize: '30px 30px', pointerEvents: 'none', zIndex: 1
+    backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)`,
+    backgroundSize: '20px 20px', pointerEvents: 'none', zIndex: 1
   },
   headerSection: { 
-    background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(10px)',
-    padding: '30px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.1)',
-    marginBottom: '40px', position: 'relative', zIndex: 2
+    background: 'rgba(255, 255, 255, 0.03)', padding: '20px', borderRadius: '15px', 
+    border: '1px solid rgba(255, 255, 255, 0.1)', marginBottom: '25px', position: 'relative', zIndex: 2
   },
-  logoWrapper: { display: 'flex', alignItems: 'center', gap: '20px' },
-  titleStyle: { margin: 0, fontSize: '1.8rem', fontWeight: '900', letterSpacing: '-1px', color: '#fff' },
-  tabRow: { display: 'flex', gap: '12px', marginBottom: '35px', position: 'relative', zIndex: 2 },
+  logoWrapper: { display: 'flex', alignItems: 'center', gap: '15px' },
+  titleStyle: { margin: 0, fontSize: '1.5rem', fontWeight: '900', color: '#fff' },
+  subTitleText: { fontSize: '10px', opacity: 0.5, margin: 0, letterSpacing: '2px', color: '#fff' },
+  tabRow: { display: 'flex', gap: '8px', marginBottom: '25px', position: 'relative', zIndex: 2 },
   tabActive: { 
-    display:'flex', alignItems:'center', gap:'10px', padding: '12px 24px', 
-    background: '#fbbf24', color: '#022c22', borderRadius: '12px', 
-    fontWeight: '800', border: 'none', cursor:'pointer'
+    display:'flex', alignItems:'center', gap:'8px', padding: '10px 15px', whiteSpace: 'nowrap',
+    background: '#fbbf24', color: '#022c22', borderRadius: '8px', fontWeight: '800', border: 'none'
   },
   tabInactive: { 
-    display:'flex', alignItems:'center', gap:'10px', padding: '12px 24px', 
-    background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderRadius: '12px', 
-    border: '1px solid rgba(255,255,255,0.1)', cursor:'pointer'
+    display:'flex', alignItems:'center', gap:'8px', padding: '10px 15px', whiteSpace: 'nowrap',
+    background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)'
   },
   gridStyle: { 
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-    gap: '25px', marginBottom: '50px', position: 'relative', zIndex: 2 
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
+    gap: '15px', marginBottom: '40px', position: 'relative', zIndex: 2 
   },
   cardStyle: { 
-    background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(10px)',
-    padding: '30px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.08)', transition: 'all 0.4s'
+    background: 'rgba(255, 255, 255, 0.03)', padding: '15px', borderRadius: '15px', 
+    border: '1px solid rgba(255, 255, 255, 0.08)', transition: '0.3s'
   },
-  cardTitle: { margin: 0, fontWeight: '700', color: '#94a3b8', fontSize: '13px', textTransform: 'uppercase' },
-  stockNumberStyle: { fontSize: '2.5rem', fontWeight: '900', color: '#fff', margin: '15px 0' },
+  cardTitle: { margin: 0, fontWeight: '700', color: '#94a3b8', fontSize: '11px', textTransform: 'uppercase' },
+  stockNumberStyle: { fontSize: '1.8rem', fontWeight: '900', color: '#fff', margin: '10px 0' },
   btnBorrow: { 
-    width: '100%', padding: '14px', background: '#fbbf24', color: '#022c22', 
-    border: 'none', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', 
-    display:'flex', alignItems:'center', justifyContent:'center', gap:'10px'
+    width: '100%', padding: '10px', background: '#fbbf24', color: '#022c22', 
+    border: 'none', borderRadius: '8px', fontWeight: '800', fontSize: '11px', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px'
   },
   tableWrapper: { 
-    background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(20px)',
-    borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden' 
+    background: 'rgba(15, 23, 42, 0.4)', borderRadius: '15px', border: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden' 
   },
-  tableHeaderStyle: { 
-    padding: '25px', fontWeight: '800', fontSize: '16px', color: '#fff',
-    display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' 
-  },
+  tableHeaderStyle: { padding: '15px', fontWeight: '800', fontSize: '14px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' },
   tableMain: { width: '100%', borderCollapse: 'collapse' },
-  thStyle: { padding: '18px 25px', textAlign: 'left', background: 'rgba(255,255,255,0.02)', fontSize: '11px', color: '#64748b' },
-  tdStyle: { padding: '18px 25px', fontSize: '14px', borderBottom: '1px solid rgba(255, 255, 255, 0.03)', color: '#d1d5db' },
-  vkBadge: { 
-    background: 'rgba(251, 191, 36, 0.1)', padding: '4px 10px', borderRadius: '8px', 
-    fontSize: '11px', fontWeight: '800', color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.2)' 
-  },
-  statusOk: { color: '#4ade80', fontWeight: 'bold' },
-  statusWait: { color: '#f87171', fontWeight: 'bold' },
-  btnReturnSmall: { 
-    display:'flex', alignItems:'center', gap:'8px', padding: '8px 16px', 
-    background: 'transparent', color: '#fbbf24', border: '1.5px solid #fbbf24', 
-    borderRadius: '10px', cursor: 'pointer', fontWeight:'800'
-  },
-  overlayStyle: { 
-    position: 'fixed', inset: 0, background: 'rgba(2, 44, 34, 0.85)', 
-    backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 
-  },
-  modalStyle: { background: '#0f172a', borderRadius: '32px', width: '420px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' },
-  modalHeader: { padding: '20px 30px', background: '#fbbf24', color: '#022c22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  qrBoxStyle: { 
-    padding: '40px', border: '2px dashed rgba(251, 191, 36, 0.3)', 
-    borderRadius: '24px', textAlign: 'center', position: 'relative'
-  },
-  inputModern: { 
-    width: '100%', padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '18px', outline: 'none'
-  },
-  btnPrimaryFull: { 
-    display:'flex', alignItems:'center', justifyContent:'center', gap:'10px', width: '100%', 
-    padding: '16px', background: '#fbbf24', color: '#022c22', borderRadius: '16px', fontWeight: '900', border: 'none', cursor: 'pointer'
-  },
-  btnSecondary: { 
-    display:'flex', alignItems:'center', justifyContent:'center', gap:'10px', width: '100%', 
-    padding: '16px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderRadius: '16px', border: 'none', cursor: 'pointer'
-  },
-  toastStyle: (t: string) => ({ 
-    position: 'fixed', bottom: '30px', right: '30px', padding: '18px 30px', 
-    background: t === 'success' ? '#059669' : '#dc2626', color: 'white', borderRadius: '20px', zIndex: 2000, fontWeight: '800'
-    
-  })
-  
+  thStyle: { padding: '12px 15px', textAlign: 'left', background: 'rgba(255,255,255,0.02)', fontSize: '10px', color: '#64748b' },
+  tdStyle: { padding: '12px 15px', fontSize: '13px', borderBottom: '1px solid rgba(255, 255, 255, 0.03)' },
+  vkBadge: { background: 'rgba(251, 191, 36, 0.1)', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.2)' },
+  statusOk: { color: '#4ade80', fontWeight: 'bold', fontSize: '12px' },
+  statusWait: { color: '#f87171', fontWeight: 'bold', fontSize: '12px' },
+  btnReturnSmall: { display:'flex', alignItems:'center', gap:'5px', padding: '5px 10px', background: 'transparent', color: '#fbbf24', border: '1px solid #fbbf24', borderRadius: '6px', fontWeight:'800', fontSize: '11px' },
+  mobileLogCard: { background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  overlayStyle: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '15px' },
+  modalStyle: { background: '#0f172a', borderRadius: '20px', width: '100%', maxWidth: '350px', overflow: 'hidden' },
+  modalHeader: { padding: '15px 20px', background: '#fbbf24', color: '#022c22', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  qrBoxStyle: { padding: '30px', border: '2px dashed rgba(251, 191, 36, 0.2)', borderRadius: '15px', textAlign: 'center', position: 'relative' },
+  inputModern: { width: '100%', padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '16px', textAlign: 'center' },
+  btnPrimaryFull: { width: '100%', padding: '12px', background: '#fbbf24', color: '#022c22', borderRadius: '10px', fontWeight: '900', border: 'none' },
+  btnSecondary: { width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', borderRadius: '10px', border: 'none' },
+  toastStyle: (t: string) => ({ position: 'fixed', bottom: '20px', right: '20px', left: '20px', padding: '15px', background: t === 'success' ? '#059669' : '#dc2626', color: 'white', borderRadius: '12px', zIndex: 2000, fontWeight: '800', textAlign: 'center' as const })
 };
