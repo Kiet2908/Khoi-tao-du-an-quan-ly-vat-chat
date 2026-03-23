@@ -9,20 +9,22 @@ import UserManagement from './pages/UserManagement'; // 1. Thêm dòng import n�
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        
-        {/* Nhóm các trang quản trị dùng chung Layout xanh quân đội */}
-        <Route path="/admin" element={<Layout />}>
-          <Route path="equipment" element={<Equipment />} />
-          <Route path="review" element={<Review />} />
-          <Route path="moments" element={<Moments />} /> 
-          
-          {/* 2. THÊM DÒNG NÀY VÀO ĐÂY */}
-          <Route path="users" element={<UserManagement />} /> 
-        </Route>
+   <Routes>
+  {/* Trang đăng nhập là gốc */}
+  <Route path="/" element={<Login />} />
 
-      </Routes>
+  {/* Nhóm Admin: Bắt buộc phải có dấu / ở path parent */}
+  <Route path="/admin" element={<Layout />}>
+    {/* Các trang con: KHÔNG ĐƯỢC có dấu / ở đầu path */}
+    <Route path="equipment" element={<Equipment />} />
+    <Route path="review" element={<Review />} />
+    <Route path="moments" element={<Moments />} />
+    <Route path="users" element={<UserManagement />} />
+  </Route>
+
+  {/* Trang báo lỗi nếu vào link bậy bạ */}
+  <Route path="*" element={<div>Trang không tồn tại - 404</div>} />
+</Routes>
     </BrowserRouter>
   );
 }
