@@ -1,4 +1,4 @@
-/* Equipment.css - BẢN NÂNG CẤP GIAO DIỆN HIỆN ĐẠI 2026 */
+/* Equipment.css - BẢN TỐI ƯU MOBILE & PC HIỆN ĐẠI 2026 */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .equipment-container {
@@ -10,7 +10,7 @@
     font-family: 'Be Vietnam Pro', sans-serif;
 }
 
-/* --- NÚT BẤM SIÊU CẤP (BUTTON UPGRADE) --- */
+/* --- NÚT BẤM SIÊU CẤP --- */
 .btn-borrow {
     width: 100%;
     padding: 12px 20px;
@@ -32,13 +32,8 @@
 }
 
 .btn-borrow:hover {
-    transform: translateY(-3px) scale(1.02);
+    transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
-    filter: brightness(1.1);
-}
-
-.btn-borrow:active {
-    transform: translateY(0);
 }
 
 /* --- THẺ VẬT CHẤT (ITEM CARDS) --- */
@@ -59,6 +54,7 @@
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    position: relative; /* Giúp quản lý các icon bay lơ lửng bên trong */
 }
 
 .item-card:hover {
@@ -72,6 +68,7 @@
     color: #1e293b;
     margin-bottom: 15px;
     line-height: 1.4;
+    padding-right: 10px; /* Chừa khoảng trống tránh đè icon */
 }
 
 .stock-number {
@@ -84,7 +81,7 @@
     gap: 5px;
 }
 
-/* --- BẢNG NHẬT KÝ (TABLES UPGRADE) --- */
+/* --- BẢNG NHẬT KÝ --- */
 .table-wrapper {
     background: white;
     border-radius: 20px;
@@ -95,72 +92,82 @@
 }
 
 .table-header-box {
-    background: #14532d; /* Màu xanh lục quân đội */
+    background: #14532d;
     padding: 18px 25px;
     font-weight: 800;
     font-size: 14px;
-    color: #ffffff; /* Chữ trắng cho nổi */
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 12px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.main-table th {
-    background: #f1f5f9;
-    padding: 15px;
-    font-size: 11px;
-    font-weight: 800;
-    color: #475569;
-    text-transform: uppercase;
-    border-bottom: 2px solid #e2e8f0;
-}
+/* --- MOBILE RESPONSIVE (QUAN TRỌNG) --- */
+@media (max-width: 768px) {
+    .equipment-container {
+        padding: 20px 16px 100px 16px; /* Thêm lề trái phải cho container */
+    }
 
-.main-table td {
-    padding: 15px;
-    font-size: 14px;
-    color: #334155;
-    border-bottom: 1px solid #f1f5f9;
-}
+    .equipment-grid {
+        grid-template-columns: 1fr;
+        gap: 16px; /* Khoảng cách giữa các card */
+    }
 
-.main-table tr:hover td {
-    background: #f8fafc;
-}
+    .item-card {
+        padding: 20px;
+        border-radius: 20px;
+        margin: 0; /* Xóa margin thừa */
+        width: auto; /* Đảm bảo không tràn màn hình */
+    }
 
-/* Badge số lượng/mã */
-.badge-unit {
-    background: #f1f5f9;
-    color: #1e293b;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 12px;
-    border: 1px solid #e2e8f0;
+    .card-title {
+        font-size: 16px;
+        padding-right: 30px; /* Tránh đè lên cái avatar tròn lơ lửng */
+    }
+
+    .stock-number {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+
+    .btn-borrow {
+        padding: 10px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    /* Fix bảng cho mobile */
+    .desktop-table-view {
+        overflow-x: auto;
+    }
+    
+    .main-table {
+        min-width: 600px;
+    }
 }
 
 /* --- THÔNG BÁO TOAST --- */
 .toast-animate {
     position: fixed;
-    top: 30px;
-    left: 30px;
-    padding: 18px 28px;
-    border-radius: 16px;
+    top: 20px;
+    left: 20px;
+    right: 20px; /* Trên mobile sẽ giãn đều 2 bên */
+    max-width: 400px;
+    padding: 16px 20px;
+    border-radius: 12px;
     z-index: 10001;
     display: flex;
     align-items: center;
     gap: 12px;
     font-weight: 800;
     color: white;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     background: #14532d;
-    border: 1px solid rgba(255,255,255,0.1);
-    animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    animation: slideInDown 0.4s ease-out;
 }
 
-/* --- MOBILE RESPONSIVE --- */
-@media (max-width: 768px) {
-    .equipment-grid { grid-template-columns: 1fr; gap: 15px; }
-    .item-card { padding: 20px; }
-    .stock-number { font-size: 2rem; }
+@keyframes slideInDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
