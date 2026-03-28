@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 * {
-    box-sizing: border-box; /* Quan trọng: Giúp padding không làm tràn viền */
+    box-sizing: border-box; 
     margin: 0;
     padding: 0;
 }
@@ -22,7 +22,7 @@ body {
 
 /* --- 2. HEADER XANH QUÂN ĐỘI --- */
 .header-section, .header-identity {
-    background: #14532d; /* Xanh lục quân đậm */
+    background: #14532d; 
     padding: 25px 30px;
     border-radius: 16px;
     display: flex;
@@ -64,14 +64,14 @@ body {
     display: grid;
     /* Chia tối đa 5 cột, mỗi cột tối thiểu 180px. Tự xuống dòng nếu thiếu chỗ */
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px !important; /* KHOẢNG CÁCH GIỮA CÁC Ô */
+    gap: 20px !important; 
     align-items: flex-end;
 }
 
 .input-field {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Khoảng cách giữa nhãn và ô input */
+    gap: 10px; 
 }
 
 .input-label, label {
@@ -85,7 +85,7 @@ body {
     width: 100%;
     padding: 12px 16px;
     border-radius: 10px;
-    border: 1.5px solid #cbd5e1; /* Viền xám rõ nét */
+    border: 1.5px solid #cbd5e1; 
     background: #ffffff;
     font-size: 14px;
     font-family: inherit;

@@ -1,16 +1,19 @@
-/* Moments.css - Giao diện Trắng tông Xanh lá */
+/* Moments.css - Giao diện Trắng tông Xanh lá - ĐÃ ĐỔI FONT ĐỒNG BỘ */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+
 .moments-container {
     min-height: 100vh;
-    background: #f8fafc; /* Nền trắng xám nhạt sạch sẽ */
+    background: #f8fafc;
     position: relative;
     padding-bottom: 50px;
-    font-family: 'Inter', sans-serif;
+    /* Đổi font mặc định sang Be Vietnam Pro */
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* Header Xanh lá Lục quân */
 .header-moment {
-    background: #14532d !important; /* Xanh lá đậm */
-    border-bottom: 5px solid #16a34a; /* Viền xanh sáng */
+    background: #14532d !important;
+    border-bottom: 5px solid #16a34a;
     padding: 60px 20px !important;
     display: flex;
     flex-direction: column;
@@ -24,9 +27,10 @@
     font-size: 2.2rem;
     margin: 0;
     color: white;
-    font-weight: 900;
+    font-weight: 900; /* Font dày nhất cho tiêu đề chính */
     letter-spacing: 1px;
     text-transform: uppercase;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 .header-sub {
@@ -34,6 +38,7 @@
     font-size: 13px;
     font-weight: 600;
     margin-top: 8px;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* Nút thêm ảnh */
@@ -44,7 +49,8 @@
     border: none;
     padding: 12px 30px;
     border-radius: 50px;
-    font-weight: 800;
+    font-weight: 800; /* Chữ đậm cho nút bấm */
+    font-family: 'Be Vietnam Pro', sans-serif;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -96,9 +102,10 @@
 .caption-text {
     margin: 15px 0 5px 0;
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 800; /* Làm cho caption nổi bật hơn */
     color: #14532d;
     text-align: center;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* Nút xóa */

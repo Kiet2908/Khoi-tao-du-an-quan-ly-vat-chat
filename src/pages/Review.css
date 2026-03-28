@@ -1,19 +1,22 @@
-/* Review.css - Giao diện Thư viện Trắng tông Xanh lá */
+/* Review.css - Giao diện Thư viện Trắng tông Xanh lá - ĐỒNG BỘ HỆ THỐNG */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+
 .review-container {
     padding: 30px 20px;
     max-width: 1200px;
     margin: 0 auto;
-    background: #f8fafc; /* Nền trắng xám nhạt */
+    background: #f8fafc; 
     min-height: 100vh;
     color: #1e293b;
-    font-family: 'Inter', sans-serif;
+    /* Đổi font đồng bộ */
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* Header Xanh lá */
 .header-library {
-    background: #14532d; /* Xanh lá lục quân */
-    padding: 25px;
-    border-radius: 16px;
+    background: #14532d; 
+    padding: 30px 25px;
+    border-radius: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -24,18 +27,21 @@
 
 .header-title-text {
     margin: 0;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 900;
     color: white;
     letter-spacing: 0.5px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    text-transform: uppercase;
 }
 
 .header-sub-text {
-    margin: 0;
-    font-size: 10px;
+    margin: 4px 0 0 0;
+    font-size: 11px;
     color: #bbf7d0;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
 /* Thanh tìm kiếm */
@@ -51,10 +57,15 @@
     align-items: center;
     gap: 12px;
     background: white;
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    padding: 14px 20px;
+    border-radius: 14px;
+    border: 1.5px solid #e2e8f0;
+    transition: 0.3s;
+}
+
+.search-bar-wrapper:focus-within {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
 }
 
 .search-bar-wrapper input {
@@ -63,18 +74,20 @@
     width: 100%;
     font-size: 14px;
     color: #334155;
+    font-weight: 600;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* Grid học liệu */
 .materials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
 }
 
 .doc-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     border: 1px solid #e2e8f0;
     overflow: hidden;
     transition: 0.3s;
@@ -89,7 +102,29 @@
 }
 
 .card-body {
-    padding: 20px;
+    padding: 24px;
+}
+
+/* Badge tính chất (Lý thuyết, Thực hành...) */
+.tag-badge {
+    font-size: 10px;
+    font-weight: 900; /* Làm đậm badge để giống phong cách quân đội */
+    padding: 5px 12px;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #166534;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    display: inline-block;
+    border: 1px solid #bbf7d0;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+    line-height: 1.4;
 }
 
 .card-footer {
@@ -100,48 +135,43 @@
 
 .btn-action {
     flex: 1;
-    padding: 12px;
+    padding: 15px;
     background: none;
     border: none;
     color: #166534;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     transition: 0.2s;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    text-transform: uppercase;
 }
 
 .btn-action:hover {
-    background: #f0fdf4;
-}
-
-/* Badge tính chất (Lý thuyết, Thực hành...) */
-.tag-badge {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: #f1f5f9;
-    color: #475569;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: inline-block;
+    background: #16a34a;
+    color: white;
 }
 
 /* Form Upload */
 .upload-form-container {
     background: white;
-    padding: 25px;
-    border-radius: 16px;
-    border: 1px solid #bbf7d0;
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px dashed #bbf7d0; /* Dùng viền nét đứt cho khu vực upload */
     margin-bottom: 30px;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
 }
 
 @media (max-width: 768px) {
     .materials-grid { grid-template-columns: 1fr; }
-    .header-library { padding: 15px; }
+    .header-library { 
+        padding: 20px; 
+        flex-direction: column; 
+        text-align: center; 
+        gap: 15px; 
+    }
 }

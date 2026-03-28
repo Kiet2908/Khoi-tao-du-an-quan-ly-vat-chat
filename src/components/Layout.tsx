@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Box, BookOpen, Camera, LogOut, Users, Code2, Phone } from 'lucide-react';
+import { Shield, Box, BookOpen, Camera, LogOut, Users, Code2, MessageCircle } from 'lucide-react';
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -17,11 +17,11 @@ export default function Layout() {
   const checkActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <style>{`
         @media (min-width: 1024px) {
           .layout-flex { flex-direction: row !important; }
-          .side-bar { display: flex !important; width: 260px; height: 100vh; position: sticky; top: 0; background: #064e3b; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); }
+          .side-bar { display: flex !important; width: 280px; height: 100vh; position: sticky; top: 0; background: #064e3b; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); }
           .bot-nav { display: none !important; }
         }
         @media (max-width: 1023px) {
@@ -34,29 +34,30 @@ export default function Layout() {
           }
           .main-view { padding-bottom: 90px !important; }
         }
-        .nav-link { display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #94a3b8; text-decoration: none; border-radius: 10px; margin: 5px 10px; transition: 0.3s; }
-        .nav-link.active { background: #10b981 !important; color: white !important; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #94a3b8; text-decoration: none; border-radius: 12px; margin: 5px 15px; transition: 0.3s; font-weight: 600; }
+        .nav-link.active { background: #10b981 !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .m-link { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94a3b8; text-decoration: none; gap: 4px; transition: 0.2s; }
         .m-link.active { color: #34d399 !important; font-weight: bold; }
+        
+        .logout-btn:hover { background: #dc2626 !important; transform: translateY(-2px); }
       `}</style>
 
       <div className="layout-flex" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         {/* SIDEBAR PC */}
         <aside className="side-bar">
-          <div style={{ padding: '25px 15px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-            <Shield size={40} color="#fbbf24" style={{ margin: '0 auto' }} />
-            <h2 style={{ color: '#fff', fontSize: '15px', marginTop: '10px', fontWeight: '900' }}>Tổ bộ Giáo dục quốc phòng và an ninh </h2>
-            <p style={{ color: '#fff', fontSize: '15px', marginTop: '10px', fontWeight: '900' }}>TDC</p>
-            <div style={{ marginTop: '10px' }}>
-              <p style={{ color: '#fff', fontSize: '14px', margin: 0, fontWeight: '700' }}>{userFullName}</p>
-              <span style={{ fontSize: '10px', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: '10px' }}>
-                {userRole === 'ADMIN' ? 'ADMIN' : userRole === 'TEACHER' ? 'GIẢNG VIÊN' : `SV: ${userCode}`}
+          <div style={{ padding: '30px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <Shield size={45} color="#fbbf24" style={{ margin: '0 auto', filter: 'drop-shadow(0 0 8px rgba(251,191,36,0.3))' }} />
+            <h2 style={{ color: '#fff', fontSize: '14px', marginTop: '15px', fontWeight: '900', textTransform: 'uppercase', lineHeight: '1.4' }}>Tổ bộ môn Giáo dục quốc phòng và an ninh</h2>
+            <p style={{ color: '#fff', fontSize: '14px', marginTop: '15px', fontWeight: '900', textTransform: 'uppercase', lineHeight: '1.4'}}>TDC</p>
+            <div style={{ marginTop: '15px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '12px' }}>
+              <p style={{ color: '#fff', fontSize: '14px', margin: '0 0 5px 0', fontWeight: '800' }}>{userFullName}</p>
+              <span style={{ fontSize: '10px', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '3px 10px', borderRadius: '8px', fontWeight: 'bold' }}>
+                {userRole === 'ADMIN' ? 'QUẢN TRỊ VIÊN' : userRole === 'TEACHER' ? 'GIẢNG VIÊN' : `SV: ${userCode}`}
               </span>
             </div>
           </div>
 
-          <nav style={{ flex: 1, marginTop: '15px' }}>
-            {/* LOGIC PHÂN QUYỀN: CHỈ ADMIN/TEACHER THẤY VẬT CHẤT */}
+          <nav style={{ flex: 1, marginTop: '20px' }}>
             {(userRole === 'ADMIN' || userRole === 'TEACHER') && (
               <Link to="/admin/equipment" className={`nav-link ${checkActive('/admin/equipment') ? 'active' : ''}`}><Box size={20}/> Vật chất</Link>
             )}
@@ -67,24 +68,23 @@ export default function Layout() {
             )}
           </nav>
 
-          {/* PHẦN GIỚI THIỆU DEVELOPER (TUẤN KIỆT) */}
-          <div style={{ padding: '15px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '12px', marginBottom: '10px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '5px' }}>
-                <Code2 size={12} color="#fbbf24" />
-                <span style={{ fontSize: '9px', color: '#fbbf24', fontWeight: '900' }}>DEVELOPER</span>
+          {/* DEVELOPER SECTION */}
+          <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '15px', marginBottom: '15px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <Code2 size={14} color="#fbbf24" />
+                <span style={{ fontSize: '14px', color: '#fbbf24', fontWeight: '900' }}>DEVELOPER</span>
               </div>
-              <p style={{ color: '#fff', fontSize: '12px', fontWeight: '800', margin: 0 }}>PHẠM GIA TUẤN KIỆT</p>
-              <p style={{ color: '#fff', fontSize: '12px', fontWeight: '800', margin: 0 }}>Hổ trợ : Cao Trần Trí</p>
+              <p style={{ color: '#fff', fontSize: '20px', fontWeight: '800', margin: '0 0 4px 0' }}>Phạm Gia Tuấn Kiệt</p>
+              <p style={{ color: '#fff', fontSize: '17px', fontWeight: '800', margin: '0 0 4px 0' }}>Hỗ trợ: Cao Trần Trí</p>
               
-              {/* SỐ ĐIỆN THOẠI CỦA DŨNG Ở ĐÂY */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#fbbf24', fontSize: '10px', fontWeight: '600' }}>
-                <Phone size={10} /> 0523.732.134
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '15px', fontWeight: '800', background: 'rgba(59, 130, 246, 0.15)', padding: '5px 10px', borderRadius: '8px', width: 'fit-content' }}>
+                <MessageCircle size={13} strokeWidth={3} />Zalo : 0523.732.134
               </div>
             </div>
             
-            <button onClick={handleLogout} style={{ width: '100%', padding: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <LogOut size={16} /> Thoát
+            <button onClick={handleLogout} className="logout-btn" style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: '0.3s' }}>
+              <LogOut size={16} /> Đăng xuất
             </button>
           </div>
         </aside>
