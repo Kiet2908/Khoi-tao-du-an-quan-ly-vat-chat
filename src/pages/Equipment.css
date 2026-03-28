@@ -1,4 +1,4 @@
-/* Equipment.css - BẢN TỐI ƯU MOBILE & PC HIỆN ĐẠI 2026 */
+/* Equipment.css - BẢN TỐI ƯU MOBILE 2 CỘT TUYỆT ĐỐI */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .equipment-container {
@@ -54,7 +54,7 @@
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-    position: relative; /* Giúp quản lý các icon bay lơ lửng bên trong */
+    position: relative;
 }
 
 .item-card:hover {
@@ -68,7 +68,7 @@
     color: #1e293b;
     margin-bottom: 15px;
     line-height: 1.4;
-    padding-right: 10px; /* Chừa khoảng trống tránh đè icon */
+    padding-right: 10px;
 }
 
 .stock-number {
@@ -103,71 +103,78 @@
     text-transform: uppercase;
 }
 
-/* --- MOBILE RESPONSIVE (QUAN TRỌNG) --- */
+/* --- MOBILE RESPONSIVE: ÉP 2 CỘT --- */
 @media (max-width: 768px) {
     .equipment-container {
-        padding: 15px 10px 100px 10px !important; /* Lề ngoài cực gọn để chừa chỗ cho 2 cột */
+        padding: 15px 10px 100px 10px !important;
     }
 
+    /* ÉP CHIA 2 CỘT TUYỆT ĐỐI */
     .equipment-grid {
-        grid-template-columns: repeat(2, 1fr); /* CHIA 2 CỘT TRÊN MOBILE */
-        gap: 10px; /* Khoảng cách giữa 2 card mỏng lại */
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important;
+        width: 100% !important;
     }
 
     .item-card {
-        padding: 15px 10px; /* Thu nhỏ padding bên trong card */
-        border-radius: 16px;
-        min-height: 180px; /* Đảm bảo các card cao bằng nhau */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        padding: 12px 10px !important;
+        border-radius: 16px !important;
+        min-height: 160px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
     }
 
     .card-title {
-        font-size: 13px; /* Chữ nhỏ lại để không bị xuống dòng quá nhiều */
-        font-weight: 800;
-        margin-bottom: 8px;
-        line-height: 1.2;
-        min-height: 32px; /* Giữ chỗ cho 2 dòng tiêu đề */
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        margin-bottom: 8px !important;
+        line-height: 1.2 !important;
+        
+        /* CÁCH NÀY KHÔNG BAO GIỜ BỊ VÀNG */
+        display: block !important;
+        max-height: 32px !important; /* Giới hạn đúng 2 dòng chữ */
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: normal !important;
+        -webkit-box-orient: vertical !important;
     }
 
     .stock-number {
-        font-size: 1.4rem; /* Số lượng nhỏ lại cho vừa chiều ngang */
-        margin-bottom: 10px;
-        font-weight: 900;
+        font-size: 1.3rem !important;
+        margin-bottom: 10px !important;
+        font-weight: 900 !important;
     }
 
     .stock-number small {
-        font-size: 10px;
-        color: #94a3b8;
+        font-size: 10px !important;
     }
 
     .btn-borrow {
-        padding: 8px 5px; /* Nút bấm nhỏ lại */
-        font-size: 11px; /* Chữ trong nút nhỏ lại */
-        border-radius: 10px;
-        gap: 5px;
+        padding: 8px 5px !important;
+        font-size: 10px !important;
+        border-radius: 10px !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
     }
 
     .btn-borrow svg {
-        width: 14px; /* Icon nhỏ lại */
-        height: 14px;
+        width: 12px !important;
+        height: 12px !important;
     }
 
-    /* Ẩn bớt các icon thừa đè lên chữ trên mobile */
+    /* Ẩn các icon thừa đè chữ trên mobile */
     .item-card svg:not(.btn-borrow svg) {
-        display: none;
+        display: none !important;
     }
 }
+
 /* --- THÔNG BÁO TOAST --- */
 .toast-animate {
     position: fixed;
     top: 20px;
     left: 20px;
-    right: 20px; /* Trên mobile sẽ giãn đều 2 bên */
+    right: 20px;
     max-width: 400px;
     padding: 16px 20px;
     border-radius: 12px;
