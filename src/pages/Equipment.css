@@ -106,47 +106,62 @@
 /* --- MOBILE RESPONSIVE (QUAN TRỌNG) --- */
 @media (max-width: 768px) {
     .equipment-container {
-        padding: 20px 16px 100px 16px; /* Thêm lề trái phải cho container */
+        padding: 15px 10px 100px 10px !important; /* Lề ngoài cực gọn để chừa chỗ cho 2 cột */
     }
 
     .equipment-grid {
-        grid-template-columns: 1fr;
-        gap: 16px; /* Khoảng cách giữa các card */
+        grid-template-columns: repeat(2, 1fr); /* CHIA 2 CỘT TRÊN MOBILE */
+        gap: 10px; /* Khoảng cách giữa 2 card mỏng lại */
     }
 
     .item-card {
-        padding: 20px;
-        border-radius: 20px;
-        margin: 0; /* Xóa margin thừa */
-        width: auto; /* Đảm bảo không tràn màn hình */
+        padding: 15px 10px; /* Thu nhỏ padding bên trong card */
+        border-radius: 16px;
+        min-height: 180px; /* Đảm bảo các card cao bằng nhau */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .card-title {
-        font-size: 16px;
-        padding-right: 30px; /* Tránh đè lên cái avatar tròn lơ lửng */
+        font-size: 13px; /* Chữ nhỏ lại để không bị xuống dòng quá nhiều */
+        font-weight: 800;
+        margin-bottom: 8px;
+        line-height: 1.2;
+        min-height: 32px; /* Giữ chỗ cho 2 dòng tiêu đề */
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .stock-number {
-        font-size: 2rem;
-        margin-bottom: 15px;
+        font-size: 1.4rem; /* Số lượng nhỏ lại cho vừa chiều ngang */
+        margin-bottom: 10px;
+        font-weight: 900;
+    }
+
+    .stock-number small {
+        font-size: 10px;
+        color: #94a3b8;
     }
 
     .btn-borrow {
-        padding: 10px;
-        font-size: 13px;
-        border-radius: 12px;
+        padding: 8px 5px; /* Nút bấm nhỏ lại */
+        font-size: 11px; /* Chữ trong nút nhỏ lại */
+        border-radius: 10px;
+        gap: 5px;
     }
 
-    /* Fix bảng cho mobile */
-    .desktop-table-view {
-        overflow-x: auto;
+    .btn-borrow svg {
+        width: 14px; /* Icon nhỏ lại */
+        height: 14px;
     }
-    
-    .main-table {
-        min-width: 600px;
+
+    /* Ẩn bớt các icon thừa đè lên chữ trên mobile */
+    .item-card svg:not(.btn-borrow svg) {
+        display: none;
     }
 }
-
 /* --- THÔNG BÁO TOAST --- */
 .toast-animate {
     position: fixed;
