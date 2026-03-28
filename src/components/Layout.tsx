@@ -17,7 +17,7 @@ export default function Layout() {
   const checkActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   return (
-    <div style={{ background: '#022c22', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#fff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <style>{`
         @media (min-width: 1024px) {
           .layout-flex { flex-direction: row !important; }
@@ -45,7 +45,8 @@ export default function Layout() {
         <aside className="side-bar">
           <div style={{ padding: '25px 15px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <Shield size={40} color="#fbbf24" style={{ margin: '0 auto' }} />
-            <h2 style={{ color: '#fff', fontSize: '15px', marginTop: '10px', fontWeight: '900' }}>QUÂN KHU</h2>
+            <h2 style={{ color: '#fff', fontSize: '15px', marginTop: '10px', fontWeight: '900' }}>Tổ bộ Giáo dục quốc phòng và an ninh </h2>
+            <p style={{ color: '#fff', fontSize: '15px', marginTop: '10px', fontWeight: '900' }}>TDC</p>
             <div style={{ marginTop: '10px' }}>
               <p style={{ color: '#fff', fontSize: '14px', margin: 0, fontWeight: '700' }}>{userFullName}</p>
               <span style={{ fontSize: '10px', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: '10px' }}>
@@ -74,7 +75,7 @@ export default function Layout() {
                 <span style={{ fontSize: '9px', color: '#fbbf24', fontWeight: '900' }}>DEVELOPER</span>
               </div>
               <p style={{ color: '#fff', fontSize: '12px', fontWeight: '800', margin: 0 }}>PHẠM GIA TUẤN KIỆT</p>
-              <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 4px 0' }}>Khoa CNTT - CD25TT3</p>
+              <p style={{ color: '#fff', fontSize: '12px', fontWeight: '800', margin: 0 }}>Hổ trợ : Cao Trần Trí</p>
               
               {/* SỐ ĐIỆN THOẠI CỦA DŨNG Ở ĐÂY */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#fbbf24', fontSize: '10px', fontWeight: '600' }}>
