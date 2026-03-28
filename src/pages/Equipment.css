@@ -1,4 +1,4 @@
-/* Equipment.css - BẢN CHỐT: 2 CỘT MƯỢN & VUỐT NGANG BẢNG */
+/* Equipment.css - BẢN TỔI ƯU 2 CỘT + VUỐT BẢNG + MODAL MOBILE GIỮA MÀN HÌNH */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .equipment-container {
@@ -57,25 +57,6 @@
     position: relative;
 }
 
-.card-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 15px;
-    line-height: 1.4;
-    padding-right: 10px;
-}
-
-.stock-number {
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: #0f172a;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
-}
-
 /* --- BẢNG NHẬT KÝ --- */
 .table-wrapper {
     background: white;
@@ -98,77 +79,91 @@
     text-transform: uppercase;
 }
 
-/* --- MOBILE RESPONSIVE: 2 CỘT & VUỐT BẢNG --- */
+/* --- FIX LỖI MODAL (LỚP PHỦ) --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    display: flex; 
+    align-items: center; /* Căn giữa dọc */
+    justify-content: center; /* Căn giữa ngang */
+    z-index: 9999;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: zoomIn 0.3s ease;
+    overflow: hidden;
+}
+
+/* --- MOBILE RESPONSIVE --- */
 @media (max-width: 768px) {
     .equipment-container {
         padding: 15px 10px 100px 10px !important;
     }
 
-    /* 1. ÉP CHIA 2 CỘT PHẦN MƯỢN ĐỒ */
+    /* 1. ÉP 2 CỘT MƯỢN ĐỒ */
     .equipment-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important; 
         gap: 10px !important;
-        width: 100% !important;
     }
 
     .item-card {
         padding: 12px 10px !important;
         border-radius: 16px !important;
         min-height: 160px !important;
-        margin: 0 !important;
     }
 
     .card-title {
         font-size: 12px !important;
         font-weight: 800 !important;
-        margin-bottom: 8px !important;
-        line-height: 1.2 !important;
         max-height: 30px !important;
         display: -webkit-box !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
     }
 
-    /* 2. KHÔI PHỤC VUỐT NGANG CHO BẢNG */
+    /* 2. VUỐT NGANG BẢNG */
     .desktop-table-view {
         display: block !important;
         width: 100% !important;
-        overflow-x: auto !important; /* Dòng này cực kỳ quan trọng để vuốt nè Dũng */
+        overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 
     .main-table {
-        min-width: 650px !important; /* Ép bảng đủ rộng để có thể vuốt ngang */
-        border-collapse: collapse !important;
+        min-width: 650px !important;
     }
 
-    .main-table th, .main-table td {
-        white-space: nowrap !important; /* Không cho chữ nhảy xuống dòng làm bảng xấu */
-        padding: 10px 8px !important;
-        font-size: 12px !important;
+    /* 3. FIX MODAL HIỆN GIỮA MÀN HÌNH ĐIỆN THOẠI */
+    .modal-overlay {
+        padding: 10px !important;
+        align-items: center !important; /* Quan trọng: Giữ modal ở giữa */
     }
 
-    .table-header-box {
-        padding: 12px 15px !important;
-        font-size: 12px !important;
-        position: sticky !important;
-        left: 0 !important; /* Giữ tiêu đề bảng đứng yên khi vuốt ngang */
+    .modal-content {
+        max-width: 95% !important;
+        border-radius: 20px !important;
     }
 
-    .stock-number {
-        font-size: 1.3rem !important;
-        margin-bottom: 10px !important;
-        font-weight: 900 !important;
+    input[type="number"] {
+        padding: 12px !important;
+        font-size: 18px !important;
     }
 
     .btn-borrow {
-        padding: 8px 5px !important;
-        font-size: 10px !important;
-        border-radius: 10px !important;
+        font-size: 11px !important;
+        padding: 10px !important;
     }
 
-    /* Ẩn các icon thừa đè chữ trên mobile */
+    /* Ẩn icon thừa đè chữ */
     .item-card svg:not(.btn-borrow svg) {
         display: none !important;
     }
@@ -197,4 +192,9 @@
 @keyframes slideInDown {
     from { transform: translateY(-100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
