@@ -1,4 +1,4 @@
-/* Equipment.css - BẢN TỐI ƯU MOBILE 2 CỘT TUYỆT ĐỐI */
+/* Equipment.css - BẢN CHỐT: 2 CỘT MƯỢN & VUỐT NGANG BẢNG */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .equipment-container {
@@ -57,11 +57,6 @@
     position: relative;
 }
 
-.item-card:hover {
-    border-color: #16a34a;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-}
-
 .card-title {
     font-size: 18px;
     font-weight: 800;
@@ -103,13 +98,13 @@
     text-transform: uppercase;
 }
 
-/* --- MOBILE RESPONSIVE: ÉP 2 CỘT --- */
+/* --- MOBILE RESPONSIVE: 2 CỘT & VUỐT BẢNG --- */
 @media (max-width: 768px) {
     .equipment-container {
         padding: 15px 10px 100px 10px !important;
     }
 
-    /* ÉP CHIA 2 CỘT TUYỆT ĐỐI */
+    /* 1. ÉP CHIA 2 CỘT PHẦN MƯỢN ĐỒ */
     .equipment-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important; 
@@ -122,22 +117,43 @@
         border-radius: 16px !important;
         min-height: 160px !important;
         margin: 0 !important;
-        box-sizing: border-box !important;
     }
 
     .card-title {
-        font-size: 13px !important;
+        font-size: 12px !important;
         font-weight: 800 !important;
         margin-bottom: 8px !important;
         line-height: 1.2 !important;
-        
-        /* CÁCH NÀY KHÔNG BAO GIỜ BỊ VÀNG */
-        display: block !important;
-        max-height: 32px !important; /* Giới hạn đúng 2 dòng chữ */
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: normal !important;
+        max-height: 30px !important;
+        display: -webkit-box !important;
         -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    /* 2. KHÔI PHỤC VUỐT NGANG CHO BẢNG */
+    .desktop-table-view {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important; /* Dòng này cực kỳ quan trọng để vuốt nè Dũng */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main-table {
+        min-width: 650px !important; /* Ép bảng đủ rộng để có thể vuốt ngang */
+        border-collapse: collapse !important;
+    }
+
+    .main-table th, .main-table td {
+        white-space: nowrap !important; /* Không cho chữ nhảy xuống dòng làm bảng xấu */
+        padding: 10px 8px !important;
+        font-size: 12px !important;
+    }
+
+    .table-header-box {
+        padding: 12px 15px !important;
+        font-size: 12px !important;
+        position: sticky !important;
+        left: 0 !important; /* Giữ tiêu đề bảng đứng yên khi vuốt ngang */
     }
 
     .stock-number {
@@ -146,21 +162,10 @@
         font-weight: 900 !important;
     }
 
-    .stock-number small {
-        font-size: 10px !important;
-    }
-
     .btn-borrow {
         padding: 8px 5px !important;
         font-size: 10px !important;
         border-radius: 10px !important;
-        gap: 5px !important;
-        white-space: nowrap !important;
-    }
-
-    .btn-borrow svg {
-        width: 12px !important;
-        height: 12px !important;
     }
 
     /* Ẩn các icon thừa đè chữ trên mobile */
