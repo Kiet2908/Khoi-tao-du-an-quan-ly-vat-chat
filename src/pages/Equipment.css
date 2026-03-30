@@ -116,11 +116,11 @@
 
 /* Nút X đóng Modal - Cho nó vào góc phải */
 .modal-header svg:last-child {
-    position: absolute;
+    margin-top: 10px;
+    margin-left: 100px;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    cursor: pointer;
     transition: 0.2s;
 }
 

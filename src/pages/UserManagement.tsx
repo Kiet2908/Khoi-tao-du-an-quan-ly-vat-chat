@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react'; // Đã bỏ useRef
+import { useState, useEffect, useMemo } from 'react';
 import { 
   UserPlus, Trash2, Eye, EyeOff,   
   CheckCircle, AlertCircle, X, Fingerprint, 
   Search, Loader2 
-} from 'lucide-react'; // Đã bỏ Key, Briefcase, GraduationCap
+} from 'lucide-react';
 import { supabase } from '../supabaseClient'; 
-import './UserManagement.css'; // Link tới file CSS mới
+import './UserManagement.css'; 
 
 export default function UserManagement() {
   const [activeTab, setActiveTab] = useState<'TEACHER' | 'STUDENT'>('TEACHER');
