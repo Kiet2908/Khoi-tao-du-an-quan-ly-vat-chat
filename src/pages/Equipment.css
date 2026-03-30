@@ -1,4 +1,4 @@
-/* Equipment.css - BẢN TỔI ƯU 2 CỘT + VUỐT BẢNG + MODAL MOBILE GIỮA MÀN HÌNH */
+/* Equipment.css - BẢN CHỐT: 2 CỘT + VUỐT BẢNG + MODAL TRUNG TÂM TUYỆT ĐỐI */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .equipment-container {
@@ -79,27 +79,73 @@
     text-transform: uppercase;
 }
 
-/* --- FIX LỖI MODAL (LỚP PHỦ) --- */
+/* --- FIX MODAL CHÍNH GIỮA TUYỆT ĐỐI (PC & MOBILE) --- */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(6px);
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
     display: flex; 
-    align-items: center; /* Căn giữa dọc */
-    justify-content: center; /* Căn giữa ngang */
+    align-items: center; 
+    justify-content: center; 
     z-index: 9999;
     padding: 20px;
 }
 
 .modal-content {
     background: white;
-    border-radius: 24px;
+    border-radius: 28px;
     width: 100%;
-    max-width: 480px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    animation: zoomIn 0.3s ease;
+    max-width: 450px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow: hidden;
+    position: relative;
+    text-align: center; /* Căn giữa nội dung văn bản */
+}
+
+.modal-header {
+    background: #14532d;
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Đưa tên vật chất vào giữa */
+    position: relative;
+}
+
+/* Nút X đóng Modal - Cho nó vào góc phải */
+.modal-header svg:last-child {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Căn giữa phần QR/Số lượng */
+.qr-box-scanner, .modal-content > div:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+/* Ô nhập số lượng - Căn giữa số */
+input[type="number"] {
+    width: 100%;
+    max-width: 180px;
+    margin: 15px auto;
+    padding: 15px;
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    color: #14532d;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* --- MOBILE RESPONSIVE --- */
@@ -108,7 +154,6 @@
         padding: 15px 10px 100px 10px !important;
     }
 
-    /* 1. ÉP 2 CỘT MƯỢN ĐỒ */
     .equipment-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important; 
@@ -130,7 +175,6 @@
         overflow: hidden !important;
     }
 
-    /* 2. VUỐT NGANG BẢNG */
     .desktop-table-view {
         display: block !important;
         width: 100% !important;
@@ -142,25 +186,18 @@
         min-width: 650px !important;
     }
 
-    /* 3. FIX MODAL HIỆN GIỮA MÀN HÌNH ĐIỆN THOẠI */
+    /* Fix Modal trên mobile */
     .modal-overlay {
-        padding: 10px !important;
-        align-items: center !important; /* Quan trọng: Giữ modal ở giữa */
+        padding: 15px !important;
     }
 
     .modal-content {
         max-width: 95% !important;
-        border-radius: 20px !important;
+        border-radius: 24px !important;
     }
 
-    input[type="number"] {
-        padding: 12px !important;
-        font-size: 18px !important;
-    }
-
-    .btn-borrow {
-        font-size: 11px !important;
-        padding: 10px !important;
+    .qr-box-scanner {
+        padding: 40px 20px !important;
     }
 
     /* Ẩn icon thừa đè chữ */
@@ -195,6 +232,6 @@
 }
 
 @keyframes zoomIn {
-    from { transform: scale(0.9); opacity: 0; }
+    from { transform: scale(0.85); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
