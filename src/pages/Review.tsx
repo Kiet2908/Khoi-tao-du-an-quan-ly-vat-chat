@@ -89,8 +89,8 @@ export default function Review() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <Target size={32} color="white" />
           <div>
-            <h2 className="header-title-text">THƯ VIỆN HỌC LIỆU</h2>
-            <p className="header-sub-text">HUẤN LUYỆN QUÂN SỰ</p>
+            <h2 className="header-title-text">Đề Ôn Tập QP&AN</h2>
+            <p className="header-sub-text">Tổ bộ môn Giáo dục quốc phòng và an ninh - TDC</p>
           </div>
         </div>
         {isAuthorized && (

@@ -111,7 +111,7 @@ export default function Moments() {
       {/* Header tông Xanh lá */}
       <div className="header-moment">
         <Camera size={40} color="white" style={{ marginBottom: '15px' }} />
-        <h2 className="header-title">NHẬT KÝ CHIẾN SĨ</h2>
+        <h2 className="header-title">KỈ NIỆM QUỐC PHÒNG & AN NINH</h2>
         <p className="header-sub">Lưu giữ {moments.length} khoảnh khắc hào hùng</p>
         
         <button onClick={() => fileInputRef.current?.click()} className="upload-btn" disabled={loading}>

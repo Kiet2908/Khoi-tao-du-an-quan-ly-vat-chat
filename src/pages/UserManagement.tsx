@@ -83,8 +83,8 @@ export default function UserManagement() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <Fingerprint size={32} color="white" />
           <div>
-            <h2 className="header-title">QUẢN TRỊ DANH TÁNH</h2>
-            <p style={{ margin: 0, opacity: 0.8, fontSize: '10px', color: '#bbf7d0' }}>QUÂN KHU DIGITAL ID</p>
+            <h2 className="header-title">QUẢN LÝ TÀI KHOẢN-TDC</h2>
+            <p style={{ margin: 0, opacity: 0.8, fontSize: '10px', color: '#bbf7d0' }}>Tổ bộ môn Giáo dục quốc phòng và an ninh - TDC</p>
           </div>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="submit-btn" style={{ background: 'white', color: '#14532d' }}>
