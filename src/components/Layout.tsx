@@ -78,7 +78,7 @@ export default function Layout() {
               <p style={{ color: '#fff', fontSize: '15px', fontWeight: '800', margin: '0 0 4px 0' }}>Phạm Gia Tuấn Kiệt</p>
               <p style={{ color: '#fff', fontSize: '14px', fontWeight: '800', margin: '0 0 4px 0' }}>Hỗ trợ: Cao Trần Trí</p>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '15px', fontWeight: '800', background: 'rgba(59, 130, 246, 0.15)', padding: '5px 10px', borderRadius: '8px', width: 'fit-content' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '15px', fontWeight: '800', background: 'rgba(251,191,36,0.16)', padding: '5px 10px', borderRadius: '8px', width: 'fit-content' }}>
                 <MessageCircle size={13} strokeWidth={3} />Zalo : 0523.732.134
               </div>
             </div>
