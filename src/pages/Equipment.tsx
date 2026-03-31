@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Plus, Shield, X, RotateCcw, QrCode, Activity, 
   Package, HeartPulse, Building2, Undo2, ArrowRightCircle, CheckCircle2,
-  History, AlertCircle, Calendar, 
+  History, AlertCircle, Calendar, Timer,
 } from 'lucide-react';
 import { supabase } from '../supabaseClient'; 
 import './Equipment.css';
@@ -40,7 +40,7 @@ export default function Equipment() {
   const lastScanTime = useRef<number>(0);
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
 
-  // --- STATE LỌC THỜI GIAN ---
+  const [isCooldown, setIsCooldown] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -56,6 +56,8 @@ export default function Equipment() {
 
   const fetchCloudData = async () => {
     setLoading(true);
+    // Xóa sạch logs cũ trước khi tải mới để tránh lag hiện đè
+    setLogs([]); 
     try {
       const { data: eqData } = await supabase.from('Equipment').select('*').order('VatChat');
       if (eqData) setEquipment(eqData);
@@ -67,16 +69,11 @@ export default function Equipment() {
 
   useEffect(() => { fetchCloudData(); }, []);
 
-  // --- TÁCH BIỆT LOGIC LỌC ---
   const logData = useMemo(() => {
-    // Lấy logs của user hiện tại (hoặc admin lấy hết)
     const baseLogs = userRole === 'ADMIN' ? logs : logs.filter(log => log.teacherId === currentUsername);
-    
-    // 1. NHÓM ĐANG GIỮ: KHÔNG LỌC THEO NGÀY (Luôn hiện để biết còn nợ kho)
     const active = baseLogs.filter(l => l.TrangThai === 'Đang giữ');
     const getCategory = (name: string) => equipment.find(e => e.VatChat === name)?.Loai;
 
-    // 2. NHÓM LỊCH SỬ: CHỈ LỌC THEO NGÀY TẠI ĐÂY
     let historyLogs = baseLogs;
     if (startDate || endDate) {
       historyLogs = baseLogs.filter(log => {
@@ -101,26 +98,33 @@ export default function Equipment() {
       ),
       coSo: active.filter(l => getCategory(l.VatChat) === 'CO_SO'),
       yTe: active.filter(l => getCategory(l.VatChat) === 'Y_TE'),
-      
-      // CHỈ 2 BẢNG NÀY MỚI BỊ TÁC ĐỘNG BỞIstartDate/endDate
       daTra: historyLogs.filter(l => l.TrangThai === 'Đã trả'),
       tatCa: historyLogs 
     };
   }, [logs, equipment, userRole, currentUsername, startDate, endDate]);
 
   const handleTeacherBorrow = async (item: EquipmentItem, qty: number, qrCodeData?: string) => {
+    if (isCooldown) return;
+
     const latestItem = equipment.find(e => e.id === item.id);
-    if (!latestItem || latestItem.SoLuong < qty) return showToast('Kho không đủ!', 'error');
+    if (!latestItem || latestItem.SoLuong < qty) {
+      setBorrowModal(null); // Reset modal ngay nếu kho hết
+      return showToast('Kho không đủ!', 'error');
+    }
 
     setLoading(true);
+    setIsCooldown(true);
+
     try {
       const existingLog = logs.find(l => l.teacherId === currentUsername && l.VatChat === item.VatChat && l.TrangThai === 'Đang giữ');
       if (existingLog) {
         let newMaList = existingLog.MaVatChat || '';
         if (qrCodeData) {
           if (newMaList.includes(qrCodeData)) {
+            showToast(`Mã ${qrCodeData} đã quét!`, 'error');
             setLoading(false);
-            return showToast(`Mã ${qrCodeData} đã quét!`, 'error');
+            setIsCooldown(false);
+            return; 
           }
           newMaList = newMaList ? `${newMaList}, ${qrCodeData}` : qrCodeData;
         }
@@ -142,11 +146,25 @@ export default function Equipment() {
         }]);
       }
       await supabase.from('Equipment').update({ SoLuong: latestItem.SoLuong - qty }).eq('id', item.id);
+      
       showToast(qrCodeData ? `NHẬN MÃ: ${qrCodeData}` : `MƯỢN THÀNH CÔNG!`);
-      if (!qrCodeData) setBorrowModal(null); 
+      
+      // Nếu không phải quét mã (mượn số lượng) thì reset modal luôn
+      if (!qrCodeData) {
+        setBorrowModal(null);
+        setBorrowQty(1);
+      }
+
       fetchCloudData();
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) { 
+        console.error(err); 
+        showToast('LỖI KẾT NỐI!', 'error');
+    }
+    finally { 
+        setLoading(false); 
+        // Sau 3 giây mới mở khóa cho lần bấm tiếp theo
+        setTimeout(() => setIsCooldown(false), 3000);
+    }
   }
 
   const executeReturn = async () => {
@@ -268,7 +286,6 @@ export default function Equipment() {
         </>
       )}
 
-      {/* --- NHẬT KÝ MƯỢN ĐANG GIỮ (LUÔN HIỆN, KHÔNG BỊ LỌC) --- */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
         <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ" data={logData.vuKhi} icon={Shield} />
         <LogTable title="NHẬT KÝ MƯỢN CƠ SỞ VẬT CHẤT" data={logData.coSo} icon={Building2} />
@@ -278,7 +295,6 @@ export default function Equipment() {
 
       <div style={{margin: '40px 0 20px 0', borderTop: '2px dashed #cbd5e1'}}></div>
 
-      {/* --- BỘ LỌC CHỈ DÀNH CHO LỊCH SỬ --- */}
       <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '16px', marginBottom: '20px', border: '1px solid #bbf7d0', display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'flex-end' }}>
         <div style={{ flex: 1, minWidth: '200px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: '900', color: '#16a34a', marginBottom: '8px' }}><Calendar size={14} /> LỌC LỊCH SỬ TỪ NGÀY (YYYY-MM-DD):</label>
@@ -291,19 +307,24 @@ export default function Equipment() {
         <button onClick={() => { setStartDate(''); setEndDate(''); }} style={{ padding: '12px 25px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>LÀM MỚI</button>
       </div>
 
-      {/* --- 2 BẢNG LỊCH SỬ (BỊ LỌC THEO NGÀY NHẬP) --- */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <LogTable title="NHẬT KÝ TRẢ VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
         <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
-      {/* --- MODALS --- */}
       {borrowModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
               <h3 style={{fontSize:'14px', margin:0, display:'flex', alignItems:'center', gap:'8px'}}><ArrowRightCircle size={18}/> {borrowModal.VatChat.toUpperCase()}</h3>
-              <X style={{cursor:'pointer'}} onClick={() => setBorrowModal(null)} />
+              <X 
+                style={{cursor:'pointer'}} 
+                onClick={() => {
+                  setBorrowModal(null);
+                  setBorrowQty(1);
+                  setIsCooldown(false);
+                }} 
+              />
             </div>
             <div style={{padding:'20px'}}>
               {isScannerRequired(borrowModal.VatChat) ? (
@@ -311,13 +332,27 @@ export default function Equipment() {
                   <input ref={scanInputRef} type="text" onChange={handleAutoScanner} style={{position:'absolute', opacity:0}} autoFocus />
                   <div className="scanner-line"></div>
                   <QrCode size={60} color="#15803d" style={{opacity:0.3}} />
-                  <p style={{fontSize:'11px', fontWeight:'bold', marginTop:'10px', color: '#15803d'}}>ĐANG CHỜ QUÉT MÃ...</p>
+                  <p style={{fontSize:'11px', fontWeight:'bold', marginTop:'10px', color: '#15803d'}}>
+                    {isCooldown ? "VUI LÒNG ĐỢI 3 GIÂY..." : "ĐANG CHỜ QUÉT MÃ..."}
+                  </p>
                 </div>
               ) : (
                 <div style={{display:'flex', flexDirection:'column', gap:'15px'}}>
                   <label style={{fontSize: '12px', fontWeight: 'bold', color: '#64748b'}}>SỐ LƯỢNG MƯỢN:</label>
                   <input type="number" value={borrowQty} min="1" max={borrowModal.SoLuong} onChange={(e) => setBorrowQty(Number(e.target.value))} style={{width:'100%', padding:'12px', borderRadius:'8px', border:'1px solid #e2e8f0', textAlign:'center', fontSize: '18px', fontWeight: 'bold'}} />
-                  <button onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} className="btn-borrow">XÁC NHẬN MƯỢN</button>
+                  
+                  <button 
+                    disabled={isCooldown}
+                    onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} 
+                    className="btn-borrow"
+                    style={{ 
+                        opacity: isCooldown ? 0.5 : 1, 
+                        cursor: isCooldown ? 'not-allowed' : 'pointer',
+                        background: isCooldown ? '#94a3b8' : '' 
+                    }}
+                  >
+                    {isCooldown ? <><Timer size={18}/> ĐANG XỬ LÝ (3S)...</> : "XÁC NHẬN MƯỢN"}
+                  </button>
                 </div>
               )}
             </div>
@@ -328,7 +363,7 @@ export default function Equipment() {
       {confirmData && (
         <div className="modal-overlay">
           <div className="modal-content" style={{textAlign:'center'}}>
-             <div style={{padding:'30px'}}>
+              <div style={{padding:'30px'}}>
                 <RotateCcw size={40} color="#15803d" style={{marginBottom:'15px', margin: '0 auto'}}/>
                 <h4 style={{margin:'15px 0 10px 0'}}>XÁC NHẬN TRẢ KHO?</h4>
                 <p style={{color:'#64748b', fontSize:'13px'}}>{confirmData.VatChat}</p>
@@ -336,7 +371,7 @@ export default function Equipment() {
                   <button onClick={executeReturn} className="btn-borrow">TRẢ</button>
                   <button onClick={() => setConfirmData(null)} style={{width:'100%', padding:'12px', borderRadius:'8px', border:'none', background:'#f1f5f9', cursor:'pointer', fontWeight:800}}>HỦY</button>
                 </div>
-             </div>
+              </div>
           </div>
         </div>
       )}
