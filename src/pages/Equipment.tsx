@@ -293,7 +293,7 @@ export default function Equipment() {
 
       {/* --- 2 BẢNG LỊCH SỬ (BỊ LỌC THEO NGÀY NHẬP) --- */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="NHẬT KÝ TRẢ VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
         <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
