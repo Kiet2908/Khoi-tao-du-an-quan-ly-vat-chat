@@ -56,7 +56,6 @@ export default function Equipment() {
 
   const fetchCloudData = async () => {
     setLoading(true);
-    // Xóa sạch logs cũ trước khi tải mới để tránh lag hiện đè
     setLogs([]); 
     try {
       const { data: eqData } = await supabase.from('Equipment').select('*').order('VatChat');
@@ -108,7 +107,7 @@ export default function Equipment() {
 
     const latestItem = equipment.find(e => e.id === item.id);
     if (!latestItem || latestItem.SoLuong < qty) {
-      setBorrowModal(null); // Reset modal ngay nếu kho hết
+      setBorrowModal(null);
       return showToast('Kho không đủ!', 'error');
     }
 
@@ -117,6 +116,7 @@ export default function Equipment() {
 
     try {
       const existingLog = logs.find(l => l.teacherId === currentUsername && l.VatChat === item.VatChat && l.TrangThai === 'Đang giữ');
+      
       if (existingLog) {
         let newMaList = existingLog.MaVatChat || '';
         if (qrCodeData) {
@@ -128,8 +128,10 @@ export default function Equipment() {
           }
           newMaList = newMaList ? `${newMaList}, ${qrCodeData}` : qrCodeData;
         }
+
+        // --- ÉP KIỂU SỐ ĐỂ CỘNG CHUẨN ---
         await supabase.from('ChoMuon').update({ 
-          SoLuong: Number(existingLog.SoLuong) + qty, 
+          SoLuong: Number(existingLog.SoLuong) + Number(qty), 
           MaVatChat: newMaList,
           ngaymuon: new Date().toISOString() 
         }).eq('id', existingLog.id);
@@ -140,16 +142,17 @@ export default function Equipment() {
           NguoiNhan: currentUserFullName, 
           VatChat: item.VatChat, 
           MaVatChat: qrCodeData || '', 
-          SoLuong: qty, 
+          SoLuong: Number(qty), 
           TrangThai: 'Đang giữ', 
           teacherId: currentUsername 
         }]);
       }
-      await supabase.from('Equipment').update({ SoLuong: latestItem.SoLuong - qty }).eq('id', item.id);
+
+      // --- TRỪ KHO CHUẨN ---
+      await supabase.from('Equipment').update({ SoLuong: Number(latestItem.SoLuong) - Number(qty) }).eq('id', item.id);
       
       showToast(qrCodeData ? `NHẬN MÃ: ${qrCodeData}` : `MƯỢN THÀNH CÔNG!`);
       
-      // Nếu không phải quét mã (mượn số lượng) thì reset modal luôn
       if (!qrCodeData) {
         setBorrowModal(null);
         setBorrowQty(1);
@@ -162,7 +165,6 @@ export default function Equipment() {
     }
     finally { 
         setLoading(false); 
-        // Sau 3 giây mới mở khóa cho lần bấm tiếp theo
         setTimeout(() => setIsCooldown(false), 3000);
     }
   }
@@ -175,13 +177,22 @@ export default function Equipment() {
         TrangThai: 'Đã trả',
         ngaytra: new Date().toISOString() 
       }).eq('id', confirmData.id);
+
       if (logErr) throw logErr;
+
       const eqItem = equipment.find(i => i.VatChat === confirmData.VatChat);
       if (eqItem) {
+        // --- LOGIC CHẶN TRẢ LỐ TỔNG BAN ĐẦU ---
+        let newStock = Number(eqItem.SoLuong) + Number(confirmData.SoLuong);
+        if (newStock > eqItem.TongBanDau) {
+          newStock = eqItem.TongBanDau; // Ép về mức trần
+        }
+
         await supabase.from('Equipment').update({ 
-          SoLuong: Number(eqItem.SoLuong) + Number(confirmData.SoLuong) 
+          SoLuong: newStock 
         }).eq('id', eqItem.id);
       }
+
       setConfirmData(null); 
       showToast('ĐÃ TRẢ KHO THÀNH CÔNG!'); 
       fetchCloudData();
