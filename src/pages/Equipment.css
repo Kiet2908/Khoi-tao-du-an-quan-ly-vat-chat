@@ -1,237 +1,368 @@
-/* Equipment.css - BẢN CHỐT: 2 CỘT + VUỐT BẢNG + MODAL TRUNG TÂM TUYỆT ĐỐI */
+/* Equipment.css - BẢN FIX TOÀN DIỆN: TINH TẾ - CÂN ĐỐI - CHILL */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
+:root {
+    --primary-dark: #064e3b;
+    --primary-main: #059669;
+    --primary-light: #34d399;
+    --danger: #e11d48;
+    --warning: #f59e0b;
+    --bg-body: #f8fafc;
+    --glass: rgba(255, 255, 255, 0.9);
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* --- QUÉT MÃ VÀO GIỮA TUYỆT ĐỐI (FIXED) --- */
+.qr-box-scanner {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 60px 20px !important;
+    position: relative !important;
+    min-height: 320px !important;
+    width: 100% !important;
+    background: #ffffff;
+}
+.scanner-line {
+    width: 200px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #22c55e, transparent);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 15px #22c55e;
+    animation: scanMove 2s infinite ease-in-out;
+    z-index: 10;
+}
+.qr-box-scanner svg {
+    margin: 0 auto !important;
+    display: block !important;
+    opacity: 0.2;
+}
+.qr-box-scanner p {
+    margin-top: 35px !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    color: #15803d !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
 .equipment-container {
-    padding: 40px 30px;
-    max-width: 1450px;
+    padding: 30px;
+    max-width: 1400px;
     margin: 0 auto;
-    background: #f8fafc;
+    background: var(--bg-body);
     min-height: 100vh;
     font-family: 'Be Vietnam Pro', sans-serif;
 }
 
-/* --- NÚT BẤM SIÊU CẤP --- */
-.btn-borrow {
-    width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
+/* --- HEADER SECTION --- */
+.header-section {
+    background: var(--primary-dark);
+    padding: 35px;
+    border-radius: 24px;
+    margin-bottom: 30px;
     color: white;
+    box-shadow: 0 20px 30px -10px rgba(6, 78, 59, 0.2);
+}
+
+.title-style { font-size: 22px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
+.sub-title-text { font-size: 13px; opacity: 0.7; margin-top: 5px; }
+
+.tab-row { 
+    display: flex; 
+    gap: 12px; 
+    margin-bottom: 30px; 
+    overflow-x: auto; 
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+.tab-btn {
+    padding: 12px 24px;
     border: none;
     border-radius: 14px;
-    font-weight: 800;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    background: #e2e8f0;
+    color: #64748b;
+    transition: 0.3s;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    gap: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
+.tab-btn.active { background: var(--primary-main); color: white; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3); }
 
-.btn-borrow:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
-}
-
-/* --- THẺ VẬT CHẤT (ITEM CARDS) --- */
-.equipment-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 25px;
-    margin-bottom: 50px;
-}
-
-.item-card {
-    background: white;
-    padding: 25px;
-    border-radius: 24px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    transition: all 0.4s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-    position: relative;
-}
-
-/* --- BẢNG NHẬT KÝ --- */
+/* --- BẢNG NHẬT KÝ (VUỐT MOBILE) --- */
 .table-wrapper {
     background: white;
-    border-radius: 20px;
+    border-radius: 22px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
     margin-bottom: 30px;
 }
-
-.table-header-box {
-    background: #14532d;
-    padding: 18px 25px;
-    font-weight: 800;
-    font-size: 14px;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-transform: uppercase;
+.desktop-table-view {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.main-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    min-width: 850px; /* Ép bảng rộng để không bị dồn chữ trên mobile */
 }
 
-/* --- FIX MODAL CHÍNH GIỮA TUYỆT ĐỐI (PC & MOBILE) --- */
+.pending-border { border: 2.5px solid var(--warning) !important; }
+.table-header-box {
+    background: var(--primary-dark);
+    padding: 18px 25px;
+    font-weight: 800;
+    font-size: 13px;
+    color: white;
+    display: flex;
+    align-items: center; gap: 12px;
+}
+.main-table th { background: #f8fafc; padding: 15px 20px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+.main-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+
+/* --- TABS --- */
+.tab-row { display: flex; gap: 12px; margin-bottom: 30px; }
+.tab-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    background: #e2e8f0;
+    color: #64748b;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tab-btn.active { background: var(--primary-main); color: white; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3); }
+
+/* --- MODAL DESIGN (HỖ TRỢ VUỐT DỌC) --- */
 .modal-overlay {
-    position: fixed;
+    position: fixed; 
     inset: 0;
-    background: rgba(15, 23, 42, 0.75);
+    background: rgba(2, 6, 23, 0.75);
     backdrop-filter: blur(8px);
     display: flex; 
     align-items: center; 
     justify-content: center; 
     z-index: 9999;
     padding: 20px;
+    overflow-y: auto; /* Vuốt cả vùng nền nếu modal dài */
 }
-
 .modal-content {
     background: white;
     border-radius: 28px;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    overflow: hidden;
+    width: 100%; 
+    max-width: 480px;
+    max-height: 90vh; /* Không cho modal cao quá màn hình */
+    overflow-y: auto; /* Vuốt nội dung bên trong modal */
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
-    text-align: center; /* Căn giữa nội dung văn bản */
 }
-
 .modal-header {
-    background: #14532d;
+    background: #f8fafc;
+    padding: 20px 25px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    position: sticky; /* Giữ header luôn ở trên khi vuốt */
+    top: 0;
+    z-index: 11;
+}
+.modal-header h3 { font-size: 15px; font-weight: 800; color: var(--primary-dark); margin: 0; }
+
+/* --- BỘ LỌC LỊCH SỬ (FIX ĐẸP) --- */
+.filter-section {
+    background: #fff;
     padding: 20px;
-    color: white;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
     display: flex;
-    align-items: center;
-    justify-content: center; /* Đưa tên vật chất vào giữa */
-    position: relative;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
 }
-
-/* Nút X đóng Modal - Cho nó vào góc phải */
-.modal-header svg:last-child {
-    margin-top: 10px;
-    margin-left: 100px;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: 0.2s;
-}
-
-/* Căn giữa phần QR/Số lượng */
-.qr-box-scanner, .modal-content > div:last-child {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 20px;
-}
-
-/* Ô nhập số lượng - Căn giữa số */
-input[type="number"] {
+.filter-input-group { flex: 1; min-width: 200px; }
+.filter-label { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; color: var(--primary-main); margin-bottom: 8px; text-transform: uppercase; }
+.filter-input-style {
     width: 100%;
-    max-width: 180px;
-    margin: 15px auto;
-    padding: 15px;
-    font-size: 24px;
-    font-weight: 900;
-    text-align: center;
+    padding: 12px;
     border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    color: #14532d;
-    font-family: 'Be Vietnam Pro', sans-serif;
+    border: 1.5px solid #e2e8f0;
+    font-weight: 600;
+    outline: none;
+    transition: 0.3s;
 }
-
-/* --- MOBILE RESPONSIVE --- */
-@media (max-width: 768px) {
-    .equipment-container {
-        padding: 15px 10px 100px 10px !important;
-    }
-
-    .equipment-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important; 
-        gap: 10px !important;
-    }
-
-    .item-card {
-        padding: 12px 10px !important;
-        border-radius: 16px !important;
-        min-height: 160px !important;
-    }
-
-    .card-title {
-        font-size: 12px !important;
-        font-weight: 800 !important;
-        max-height: 30px !important;
-        display: -webkit-box !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-    }
-
-    .desktop-table-view {
-        display: block !important;
-        width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .main-table {
-        min-width: 650px !important;
-    }
-
-    /* Fix Modal trên mobile */
-    .modal-overlay {
-        padding: 15px !important;
-    }
-
-    .modal-content {
-        max-width: 95% !important;
-        border-radius: 24px !important;
-    }
-
-    .qr-box-scanner {
-        padding: 40px 20px !important;
-    }
-
-    /* Ẩn icon thừa đè chữ */
-    .item-card svg:not(.btn-borrow svg) {
-        display: none !important;
-    }
-}
-
-/* --- THÔNG BÁO TOAST --- */
-.toast-animate {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    max-width: 400px;
-    padding: 16px 20px;
-    border-radius: 12px;
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 800;
+.filter-input-style:focus { border-color: var(--primary-main); background: #f0fdf4; }
+.btn-refresh {
+    padding: 12px 25px;
+    background: var(--primary-main);
     color: white;
-    background: #14532d;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-    animation: slideInDown 0.4s ease-out;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-@keyframes slideInDown {
-    from { transform: translateY(-100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+/* --- BẢNG NHẬT KÝ --- */
+.table-wrapper {
+    background: white;
+    border-radius: 22px;
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+.pending-border { border: 2px solid var(--warning); }
+.table-header-box {
+    background: var(--primary-dark);
+    padding: 18px 25px;
+    font-weight: 800;
+    font-size: 13px;
+    color: white;
+    display: flex;
+    align-items: center; gap: 12px;
+}
+.main-table th { background: #f8fafc; padding: 15px 20px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+.main-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+
+/* --- NÚT TRONG BẢNG --- */
+.btn-table-small { padding: 6px 14px !important; font-size: 11px !important; width: auto !important; border-radius: 8px !important; }
+
+/* --- MODAL DESIGN (FIX LỖI CĂN CHỈNH) --- */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(2, 6, 23, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.modal-content {
+    background: white;
+    border-radius: 28px;
+    width: 90%; max-width: 480px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+    overflow: hidden;
+    animation: modalPop 0.3s ease-out;
+}
+.modal-header {
+    background: #f8fafc;
+    padding: 20px 25px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 15px; font-weight: 800; color: var(--primary-dark); margin: 0; }
+
+/* --- RETURN TABS (PHẦN TRẢ ĐỦ/THIẾU) --- */
+.return-tabs {
+    display: flex; background: #f1f5f9; padding: 5px; border-radius: 14px; margin-bottom: 20px;
+}
+.tab-item {
+    flex: 1; padding: 10px; border: none; border-radius: 10px;
+    font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.3s;
+    background: transparent; color: #64748b;
+}
+.full-active { background: var(--primary-main) !important; color: white !important; }
+.partial-active { background: var(--danger) !important; color: white !important; }
+
+/* --- TEXTAREA & INPUT --- */
+.note-textarea {
+    width: 100%; padding: 15px; border-radius: 16px; border: 1.5px solid #e2e8f0;
+    min-height: 100px; font-size: 13px; outline: none; transition: 0.3s;
+}
+.note-textarea:focus { border-color: var(--primary-main); background: #f0fdf4; }
+
+.partial-box {
+    background: #fff1f2; padding: 20px; border-radius: 18px; margin-bottom: 20px;
+    text-align: center; border: 1px solid #ffe4e6;
+}
+.partial-input-number {
+    width: 120px; padding: 12px; border-radius: 12px; border: 2px solid var(--danger);
+    font-size: 24px; font-weight: 900; color: var(--danger); text-align: center;
 }
 
-@keyframes zoomIn {
-    from { transform: scale(0.85); opacity: 0; }
+/* --- BUTTONS --- */
+.btn-borrow {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #059669 0%, #064e3b 100%);
+    color: white; border: none; border-radius: 16px;
+    font-weight: 800; font-size: 14px; cursor: pointer;
+    transition: 0.3s; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2);
+}
+.btn-borrow:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -5px rgba(5, 150, 105, 0.3); }
+
+.btn-cancel-gray {
+    width: 100%; padding: 14px; background: #f1f5f9;
+    color: #64748b; border: none; border-radius: 16px;
+    font-weight: 800; cursor: pointer;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
+}
+
+/* --- MOBILE --- */
+@media (max-width: 768px) {
+    .equipment-container { 
+        padding: 15px 10px; /* Giảm padding để có thêm không gian ngang */
+    }
+
+    .equipment-grid { 
+        /* Ép grid chia làm 2 cột bằng nhau */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; /* Thu hẹp khoảng cách giữa 2 thẻ */
+    }
+
+    .item-card { 
+        padding: 12px; /* Thu nhỏ đệm bên trong thẻ */
+        border-radius: 18px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 160px; /* Đảm bảo các thẻ cao bằng nhau cho đẹp */
+    }
+
+    .card-title { 
+        font-size: 13px !important; /* Giảm cỡ chữ tiêu đề để không bị nhảy hàng */
+        line-height: 1.2; 
+        height: 32px; 
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        margin-bottom: 8px;
+    }
+
+    .stock-number {
+        font-size: 16px !important; /* Giảm cỡ chữ số lượng */
+        margin-bottom: 10px;
+    }
+
+    .btn-borrow {
+        padding: 8px 5px !important; /* Thu nhỏ nút bấm */
+        font-size: 11px !important;
+        border-radius: 10px;
+    }
+
+    /* Ẩn bớt icon trong nút trên mobile nếu quá chật */
+    .btn-borrow svg {
+        width: 14px;
+        height: 14px;
+    }
 }

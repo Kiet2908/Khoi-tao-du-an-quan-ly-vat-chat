@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
-  Plus, Shield, X, RotateCcw, QrCode, Activity, 
+  Plus, Shield, X, QrCode, Activity, 
   Package, HeartPulse, Building2, Undo2, ArrowRightCircle, CheckCircle2,
-  History, AlertCircle, Calendar, Timer,
+  History, AlertCircle, Calendar, Timer, UserCheck
 } from 'lucide-react';
 import { supabase } from '../supabaseClient'; 
 import './Equipment.css';
@@ -22,6 +22,7 @@ interface ChoMuonLog {
   SoLuong: number; 
   TrangThai: string; 
   teacherId?: string; 
+  GhiChu?: string;
 }
 
 export default function Equipment() {
@@ -36,6 +37,11 @@ export default function Equipment() {
   const [borrowModal, setBorrowModal] = useState<EquipmentItem | null>(null);
   const [borrowQty, setBorrowQty] = useState(1);
   const [confirmData, setConfirmData] = useState<ChoMuonLog | null>(null);
+
+  const [returnType, setReturnType] = useState<'FULL' | 'PARTIAL'>('FULL');
+  const [actualReturnQty, setActualReturnQty] = useState(0);
+  const [returnNote, setReturnNote] = useState('');
+
   const scanInputRef = useRef<HTMLInputElement>(null);
   const lastScanTime = useRef<number>(0);
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
@@ -56,7 +62,6 @@ export default function Equipment() {
 
   const fetchCloudData = async () => {
     setLoading(true);
-    setLogs([]); 
     try {
       const { data: eqData } = await supabase.from('Equipment').select('*').order('VatChat');
       if (eqData) setEquipment(eqData);
@@ -71,6 +76,7 @@ export default function Equipment() {
   const logData = useMemo(() => {
     const baseLogs = userRole === 'ADMIN' ? logs : logs.filter(log => log.teacherId === currentUsername);
     const active = baseLogs.filter(l => l.TrangThai === 'Đang giữ');
+    const pending = baseLogs.filter(l => l.TrangThai === 'Chờ xác nhận');
     const getCategory = (name: string) => equipment.find(e => e.VatChat === name)?.Loai;
 
     let historyLogs = baseLogs;
@@ -84,39 +90,28 @@ export default function Equipment() {
     }
 
     return {
-      vuKhi: active.filter(l => 
-        l.VatChat.toUpperCase().includes('AK') || 
-        l.VatChat.toUpperCase().includes('CKC') ||
-        l.VatChat.toUpperCase().includes('LỰU ĐẠN') ||
-        l.VatChat.toUpperCase().includes('LĐ')
-      ),
-      mayBan: active.filter(l => 
-        l.VatChat.toUpperCase().includes('MÁY BẮN') || 
-        l.VatChat.toUpperCase().includes('MBT') || 
-        l.VatChat.toUpperCase().includes('TBS')
-      ),
+      vuKhi: active.filter(l => l.VatChat.toUpperCase().includes('AK') || l.VatChat.toUpperCase().includes('CKC') || l.VatChat.toUpperCase().includes('LỰU ĐẠN') || l.VatChat.toUpperCase().includes('LĐ')),
+      mayBan: active.filter(l => l.VatChat.toUpperCase().includes('MÁY BẮN') || l.VatChat.toUpperCase().includes('MBT') || l.VatChat.toUpperCase().includes('TBS')),
       coSo: active.filter(l => getCategory(l.VatChat) === 'CO_SO'),
       yTe: active.filter(l => getCategory(l.VatChat) === 'Y_TE'),
-      daTra: historyLogs.filter(l => l.TrangThai === 'Đã trả'),
+      choXacNhan: pending,
+      daTra: historyLogs.filter(l => l.TrangThai === 'Đã trả' || l.TrangThai === 'Trả thiếu'),
       tatCa: historyLogs 
     };
   }, [logs, equipment, userRole, currentUsername, startDate, endDate]);
 
   const handleTeacherBorrow = async (item: EquipmentItem, qty: number, qrCodeData?: string) => {
     if (isCooldown) return;
-
     const latestItem = equipment.find(e => e.id === item.id);
     if (!latestItem || latestItem.SoLuong < qty) {
       setBorrowModal(null);
       return showToast('Kho không đủ!', 'error');
     }
-
     setLoading(true);
     setIsCooldown(true);
 
     try {
       const existingLog = logs.find(l => l.teacherId === currentUsername && l.VatChat === item.VatChat && l.TrangThai === 'Đang giữ');
-      
       if (existingLog) {
         let newMaList = existingLog.MaVatChat || '';
         if (qrCodeData) {
@@ -128,8 +123,6 @@ export default function Equipment() {
           }
           newMaList = newMaList ? `${newMaList}, ${qrCodeData}` : qrCodeData;
         }
-
-        // --- ÉP KIỂU SỐ ĐỂ CỘNG CHUẨN ---
         await supabase.from('ChoMuon').update({ 
           SoLuong: Number(existingLog.SoLuong) + Number(qty), 
           MaVatChat: newMaList,
@@ -147,58 +140,68 @@ export default function Equipment() {
           teacherId: currentUsername 
         }]);
       }
-
-      // --- TRỪ KHO CHUẨN ---
       await supabase.from('Equipment').update({ SoLuong: Number(latestItem.SoLuong) - Number(qty) }).eq('id', item.id);
-      
       showToast(qrCodeData ? `NHẬN MÃ: ${qrCodeData}` : `MƯỢN THÀNH CÔNG!`);
-      
-      if (!qrCodeData) {
-        setBorrowModal(null);
-        setBorrowQty(1);
-      }
-
+      if (!qrCodeData) { setBorrowModal(null); setBorrowQty(1); }
       fetchCloudData();
-    } catch (err) { 
-        console.error(err); 
-        showToast('LỖI KẾT NỐI!', 'error');
-    }
-    finally { 
-        setLoading(false); 
-        setTimeout(() => setIsCooldown(false), 3000);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); setTimeout(() => setIsCooldown(false), 3000); }
   }
 
-  const executeReturn = async () => {
+  const requestReturn = async () => {
     if (!confirmData || loading) return;
+    const qtyToReturn = returnType === 'FULL' ? confirmData.SoLuong : actualReturnQty;
+    const isPartial = qtyToReturn < confirmData.SoLuong;
+    const missingAmount = confirmData.SoLuong - qtyToReturn;
+
     setLoading(true);
     try {
-      const { error: logErr } = await supabase.from('ChoMuon').update({ 
-        TrangThai: 'Đã trả',
-        ngaytra: new Date().toISOString() 
+      const noteRequest = isPartial 
+        ? `[Gv báo thiếu ${missingAmount}] - ${returnNote}`
+        : `[Gv báo trả đủ] - ${returnNote}`;
+
+      await supabase.from('ChoMuon').update({ 
+        TrangThai: 'Chờ xác nhận',
+        GhiChu: noteRequest,
+        SoLuong: qtyToReturn 
       }).eq('id', confirmData.id);
 
-      if (logErr) throw logErr;
+      setConfirmData(null);
+      showToast('ĐÃ GỬI YÊU CẦU TRẢ. VUI LÒNG BÀN GIAO ĐỒ CHO QUẢN LÝ!', 'success');
+      fetchCloudData();
+    } catch (err) { showToast('LỖI GỬI YÊU CẦU!', 'error'); }
+    finally { setLoading(false); }
+  };
 
-      const eqItem = equipment.find(i => i.VatChat === confirmData.VatChat);
+  const adminConfirmReturn = async (log: ChoMuonLog) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const isPartialRequest = log.GhiChu?.includes('báo thiếu');
+      const finalStatus = isPartialRequest ? 'Trả thiếu' : 'Đã trả';
+      
+      await supabase.from('ChoMuon').update({ 
+        TrangThai: finalStatus,
+        ngaytra: new Date().toISOString(),
+        GhiChu: `Quản lý kho ĐÃ XÁC NHẬN NHẬP KHO. (${log.GhiChu})`
+      }).eq('id', log.id);
+
+      const eqItem = equipment.find(i => i.VatChat === log.VatChat);
       if (eqItem) {
-        // --- LOGIC CHẶN TRẢ LỐ TỔNG BAN ĐẦU ---
-        let newStock = Number(eqItem.SoLuong) + Number(confirmData.SoLuong);
+        let newStock = Number(eqItem.SoLuong) + Number(log.SoLuong);
+        
+        // LOGIC CHỐNG VƯỢT TỔNG BAN ĐẦU
         if (newStock > eqItem.TongBanDau) {
-          newStock = eqItem.TongBanDau; // Ép về mức trần
+            newStock = eqItem.TongBanDau;
         }
 
-        await supabase.from('Equipment').update({ 
-          SoLuong: newStock 
-        }).eq('id', eqItem.id);
+        await supabase.from('Equipment').update({ SoLuong: newStock }).eq('id', eqItem.id);
       }
 
-      setConfirmData(null); 
-      showToast('ĐÃ TRẢ KHO THÀNH CÔNG!'); 
+      showToast('XÁC NHẬN NHẬP KHO THÀNH CÔNG!');
       fetchCloudData();
-    } catch (err: any) { 
-      showToast('LỖI TRẢ KHO!', 'error'); 
-    } finally { setLoading(false); }
+    } catch (err) { showToast('LỖI XÁC NHẬN!', 'error'); }
+    finally { setLoading(false); }
   };
 
   const handleAutoScanner = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,14 +216,14 @@ export default function Equipment() {
             if (scanInputRef.current) scanInputRef.current.value = "";
           }
         }
-      }, 700); 
+      }, 500); 
     }
   };
 
-  const LogTable = ({ title, data, icon: Icon, isReturnTable = false, isHistory = false }: any) => (
-    <div className="table-wrapper" style={{ marginBottom: '25px', border: isReturnTable ? '1.5px solid #16a34a' : isHistory ? '1.5px solid #64748b' : '1px solid #e2e8f0' }}>
-      <div className="table-header-box">
-        <Icon size={20} color={isReturnTable ? "#16a34a" : isHistory ? "#64748b" : "#14532d"} /> {title}
+  const LogTable = ({ title, data, icon: Icon, isReturnTable = false, isHistory = false, isPendingTable = false }: any) => (
+    <div className={`table-wrapper ${isReturnTable ? 'return-border' : isHistory ? 'history-border' : isPendingTable ? 'pending-border' : ''}`} style={{ marginBottom: '25px' }}>
+      <div className="table-header-box" style={{ background: isPendingTable ? '#f59e0b' : '' }}>
+        <Icon size={20} /> {title}
       </div>
       <div className="desktop-table-view">
         <table className="main-table">
@@ -230,9 +233,9 @@ export default function Equipment() {
               <th>NGƯỜI MƯỢN</th>
               <th>VẬT CHẤT</th>
               <th>CHI TIẾT</th>
-              {isReturnTable && <th>NGÀY MƯỢN</th>}
+              <th>GHI CHÚ</th>
               <th>TRẠNG THÁI</th>
-              {!isReturnTable && !isHistory && userRole === 'TEACHER' && <th>THAO TÁC</th>}
+              <th>THAO TÁC</th>
             </tr>
           </thead>
           <tbody>
@@ -241,14 +244,33 @@ export default function Equipment() {
                 <td>{new Date(isReturnTable && log.ngaytra ? log.ngaytra : log.ngaymuon).toLocaleString('vi-VN')}</td>
                 <td><b>{log.NguoiNhan}</b></td>
                 <td>{log.VatChat}</td>
-                <td>{log.MaVatChat ? log.MaVatChat.split(', ').map((m: any, i: any) => <span key={i} className="badge-unit" style={{fontSize:'10px', background:'#f1f5f9', padding:'2px 6px', borderRadius:'4px', marginRight:'4px', border:'1px solid #e2e8f0'}}>{m}</span>) : <b>SL: {log.SoLuong}</b>}</td>
-                {isReturnTable && <td style={{fontSize:'12px', color:'#64748b'}}>{new Date(log.ngaymuon).toLocaleString('vi-VN')}</td>}
-                <td><span style={{color: log.TrangThai === 'Đã trả' ? '#16a34a' : '#ef4444', fontWeight:'bold'}}>{log.TrangThai}</span></td>
-                {!isReturnTable && !isHistory && userRole === 'TEACHER' && (
-                  <td><button onClick={() => setConfirmData(log)} className="btn-borrow" style={{width:'auto', padding:'5px 10px'}}><Undo2 size={14}/> TRẢ</button></td>
-                )}
+                <td>{log.MaVatChat ? log.MaVatChat.split(', ').map((m: any, i: any) => <span key={i} className="badge-unit">{m}</span>) : <b>SL: {log.SoLuong}</b>}</td>
+                <td style={{fontSize:'11px', color:'#64748b'}}>{log.GhiChu || '-'}</td>
+                <td>
+                    <span className={`status-text status-${log.TrangThai === 'Đã trả' ? 'green' : log.TrangThai === 'Chờ xác nhận' ? 'orange' : log.TrangThai === 'Trả thiếu' ? 'orange' : 'red'}`}>
+                        {log.TrangThai}
+                    </span>
+                </td>
+                <td>
+                  {log.TrangThai === 'Đang giữ' && userRole === 'TEACHER' && (
+                    <button onClick={() => {
+                        setConfirmData(log);
+                        setActualReturnQty(log.SoLuong);
+                        setReturnType('FULL');
+                    }} className="btn-borrow btn-table-small"><Undo2 size={14}/> TRẢ</button>
+                  )}
+                  {log.TrangThai === 'Chờ xác nhận' && userRole === 'ADMIN' && (
+                    <button onClick={() => adminConfirmReturn(log)} className="btn-borrow btn-table-small" style={{background: '#16a34a'}}>
+                      <UserCheck size={14}/> XÁC NHẬN TRẢ KHO
+                    </button>
+                  )}
+                  {log.TrangThai === 'Chờ xác nhận' && userRole === 'TEACHER' && (
+                    <span style={{fontSize:'11px', color:'#f59e0b'}}><Timer size={12}/> Đợi Admin...</span>
+                  )}
+                  {(log.TrangThai === 'Đã trả' || log.TrangThai === 'Trả thiếu') && '-'}
+                </td>
               </tr>
-            )) : <tr><td colSpan={isReturnTable ? 7 : 6} style={{padding:'20px', textAlign:'center', color:'#94a3b8'}}>Trống</td></tr>}
+            )) : <tr><td colSpan={7} style={{padding:'20px', textAlign:'center', color:'#94a3b8'}}>Trống</td></tr>}
           </tbody>
         </table>
       </div>
@@ -277,7 +299,7 @@ export default function Equipment() {
       {(userRole === 'ADMIN' || userRole === 'TEACHER') && (
         <>
           <div className="tab-row">
-            <button onClick={() => setActiveTab('TRANG_BI')} className={`tab-btn ${activeTab === 'TRANG_BI' ? 'active' : ''}`}><Package size={18}/> TRANG BỊ</button>
+            <button onClick={() => setActiveTab('TRANG_BI')} className={`tab-btn ${activeTab === 'TRANG_BI' ? 'active' : ''}`}><Package size={18}/> VŨ KHÍ VÀ TRANG BỊ</button>
             <button onClick={() => setActiveTab('CO_SO')} className={`tab-btn ${activeTab === 'CO_SO' ? 'active' : ''}`}><Building2 size={18}/> CƠ SỞ</button>
             <button onClick={() => setActiveTab('Y_TE')} className={`tab-btn ${activeTab === 'Y_TE' ? 'active' : ''}`}><HeartPulse size={18}/> Y TẾ</button>
           </div>
@@ -298,6 +320,9 @@ export default function Equipment() {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        {logData.choXacNhan.length > 0 && (
+          <LogTable title="DANH SÁCH ĐỢI QUẢN LÝ KHO XÁC NHẬN NHẬP KHO" data={logData.choXacNhan} icon={Timer} isPendingTable={true} />
+        )}
         <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ" data={logData.vuKhi} icon={Shield} />
         <LogTable title="NHẬT KÝ MƯỢN CƠ SỞ VẬT CHẤT" data={logData.coSo} icon={Building2} />
         <LogTable title="NHẬT KÝ MƯỢN Y TẾ" data={logData.yTe} icon={HeartPulse} />
@@ -306,21 +331,21 @@ export default function Equipment() {
 
       <div style={{margin: '40px 0 20px 0', borderTop: '2px dashed #cbd5e1'}}></div>
 
-      <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '16px', marginBottom: '20px', border: '1px solid #bbf7d0', display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'flex-end' }}>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: '900', color: '#16a34a', marginBottom: '8px' }}><Calendar size={14} /> LỌC LỊCH SỬ TỪ NGÀY (YYYY-MM-DD):</label>
-          <input type="text" placeholder="Gõ: 2026-03-28" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1.5px solid #16a34a', fontFamily: 'monospace', fontWeight: 'bold' }} />
+      <div className="filter-section">
+        <div className="filter-input-group">
+          <label className="filter-label"><Calendar size={14} /> LỌC LỊCH SỬ TỪ NGÀY:</label>
+          <input type="text" placeholder="YYYY-MM-DD" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="filter-input-style" />
         </div>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: '900', color: '#16a34a', marginBottom: '8px' }}><Calendar size={14} /> ĐẾN NGÀY (YYYY-MM-DD):</label>
-          <input type="text" placeholder="Gõ: 2026-03-28" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1.5px solid #16a34a', fontFamily: 'monospace', fontWeight: 'bold' }} />
+        <div className="filter-input-group">
+          <label className="filter-label"><Calendar size={14} /> ĐẾN NGÀY:</label>
+          <input type="text" placeholder="YYYY-MM-DD" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="filter-input-style" />
         </div>
-        <button onClick={() => { setStartDate(''); setEndDate(''); }} style={{ padding: '12px 25px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>LÀM MỚI</button>
+        <button onClick={() => { setStartDate(''); setEndDate(''); }} className="btn-refresh">LÀM MỚI</button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ TRẢ VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
-        <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ,CƠ SỞ,VẬT CHẤT" data={logData.tatCa} icon={History} isHistory={true} />
+        <LogTable title="NHẬT KÝ ĐÃ NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="TỔNG HỢP LỊCH SỬ GIAO DỊCH" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
       {borrowModal && (
@@ -328,41 +353,24 @@ export default function Equipment() {
           <div className="modal-content">
             <div className="modal-header">
               <h3 style={{fontSize:'14px', margin:0, display:'flex', alignItems:'center', gap:'8px'}}><ArrowRightCircle size={18}/> {borrowModal.VatChat.toUpperCase()}</h3>
-              <X 
-                style={{cursor:'pointer'}} 
-                onClick={() => {
-                  setBorrowModal(null);
-                  setBorrowQty(1);
-                  setIsCooldown(false);
-                }} 
-              />
+              <X style={{cursor:'pointer'}} onClick={() => { setBorrowModal(null); setBorrowQty(1); setIsCooldown(false); }} />
             </div>
             <div style={{padding:'20px'}}>
               {isScannerRequired(borrowModal.VatChat) ? (
                 <div className="qr-box-scanner">
-                  <input ref={scanInputRef} type="text" onChange={handleAutoScanner} style={{position:'absolute', opacity:0}} autoFocus />
+                  <input ref={scanInputRef} type="text" onChange={handleAutoScanner} style={{position:'fixed', left:'-9999px'}} autoFocus />
                   <div className="scanner-line"></div>
-                  <QrCode size={60} color="#15803d" style={{opacity:0.3}} />
-                  <p style={{fontSize:'11px', fontWeight:'bold', marginTop:'10px', color: '#15803d'}}>
-                    {isCooldown ? "VUI LÒNG ĐỢI 3 GIÂY..." : "ĐANG CHỜ QUÉT MÃ..."}
+                  <QrCode size={80} color="#15803d" />
+                  <p>
+                    {isCooldown ? "ĐANG XỬ LÝ..." : "ĐANG CHỜ QUÉT MÃ..."}
                   </p>
                 </div>
               ) : (
                 <div style={{display:'flex', flexDirection:'column', gap:'15px'}}>
                   <label style={{fontSize: '12px', fontWeight: 'bold', color: '#64748b'}}>SỐ LƯỢNG MƯỢN:</label>
                   <input type="number" value={borrowQty} min="1" max={borrowModal.SoLuong} onChange={(e) => setBorrowQty(Number(e.target.value))} style={{width:'100%', padding:'12px', borderRadius:'8px', border:'1px solid #e2e8f0', textAlign:'center', fontSize: '18px', fontWeight: 'bold'}} />
-                  
-                  <button 
-                    disabled={isCooldown}
-                    onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} 
-                    className="btn-borrow"
-                    style={{ 
-                        opacity: isCooldown ? 0.5 : 1, 
-                        cursor: isCooldown ? 'not-allowed' : 'pointer',
-                        background: isCooldown ? '#94a3b8' : '' 
-                    }}
-                  >
-                    {isCooldown ? <><Timer size={18}/> ĐANG XỬ LÝ (3S)...</> : "XÁC NHẬN MƯỢN"}
+                  <button disabled={isCooldown} onClick={() => handleTeacherBorrow(borrowModal, borrowQty)} className="btn-borrow">
+                    {isCooldown ? "ĐỢI TRONG 3s" : "XÁC NHẬN MƯỢN"}
                   </button>
                 </div>
               )}
@@ -373,16 +381,31 @@ export default function Equipment() {
 
       {confirmData && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{textAlign:'center'}}>
-              <div style={{padding:'30px'}}>
-                <RotateCcw size={40} color="#15803d" style={{marginBottom:'15px', margin: '0 auto'}}/>
-                <h4 style={{margin:'15px 0 10px 0'}}>XÁC NHẬN TRẢ KHO?</h4>
-                <p style={{color:'#64748b', fontSize:'13px'}}>{confirmData.VatChat}</p>
-                <div style={{display:'flex', gap:'10px', marginTop:'20px'}}>
-                  <button onClick={executeReturn} className="btn-borrow">TRẢ</button>
-                  <button onClick={() => setConfirmData(null)} style={{width:'100%', padding:'12px', borderRadius:'8px', border:'none', background:'#f1f5f9', cursor:'pointer', fontWeight:800}}>HỦY</button>
-                </div>
-              </div>
+          <div className="modal-content">
+            <div className="modal-header" style={{background: '#16a34a'}}>
+              <h3 style={{fontSize:'14px', margin:0, color:'white'}}>YÊU CẦU TRẢ: {confirmData.VatChat}</h3>
+              <X style={{cursor:'pointer', color:'white'}} onClick={() => setConfirmData(null)} />
+            </div>
+            <div style={{padding:'25px'}}>
+               <div className="return-tabs">
+                  <button onClick={() => {setReturnType('FULL'); setActualReturnQty(confirmData.SoLuong);}} className={`tab-item ${returnType === 'FULL' ? 'full-active' : ''}`}>TRẢ ĐỦ</button>
+                  <button onClick={() => setReturnType('PARTIAL')} className={`tab-item ${returnType === 'PARTIAL' ? 'partial-active' : ''}`}>TRẢ THIẾU</button>
+               </div>
+               {returnType === 'PARTIAL' && (
+                 <div className="partial-box">
+                    <div style={{color:'#ef4444', marginBottom:'10px', fontWeight:800}}>SỐ LƯỢNG TRẢ THỰC TẾ:</div>
+                    <input type="number" max={confirmData.SoLuong - 1} min="0" value={actualReturnQty} onChange={(e) => setActualReturnQty(Number(e.target.value))} className="partial-input-number" />
+                 </div>
+               )}
+               <div style={{marginBottom:'20px'}}>
+                  <label style={{fontSize:'12px', fontWeight:800, color:'#64748b', display:'block', marginBottom:'8px'}}>GHI CHÚ GỬI QUẢN LÝ KHO:</label>
+                  <textarea value={returnNote} onChange={(e) => setReturnNote(e.target.value)} className="note-textarea" placeholder="Nhập lý do trả thiếu hoặc lời nhắn..." />
+               </div>
+               <div style={{display:'flex', gap:'10px'}}>
+                  <button onClick={requestReturn} className="btn-borrow" style={{background: '#059669'}}>GỬI YÊU CẦU TRẢ</button>
+                  <button onClick={() => setConfirmData(null)} className="btn-cancel-gray">HỦY</button>
+               </div>
+            </div>
           </div>
         </div>
       )}
