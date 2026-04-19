@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Plus, Shield, X, QrCode, Activity, 
   Package, HeartPulse, Building2, Undo2, ArrowRightCircle, CheckCircle2,
-  History, AlertCircle, Calendar, Timer, UserCheck
+  History, AlertCircle, Calendar, Timer, UserCheck, Archive
 } from 'lucide-react';
 import { supabase } from '../supabaseClient'; 
 import './Equipment.css';
@@ -10,6 +10,13 @@ import './Equipment.css';
 // --- INTERFACES ---
 interface EquipmentItem { 
   id: string; VatChat: string; SoLuong: number; TongBanDau: number; TrangThai: string; Loai: 'TRANG_BI' | 'Y_TE' | 'CO_SO'; 
+}
+
+interface TuTrangBiItem {
+  id: number;
+  TuSo: string;
+  MaSung: string;
+  tong: number; 
 }
 
 interface ChoMuonLog {
@@ -30,10 +37,13 @@ export default function Equipment() {
   const currentUsername = localStorage.getItem('userName') || ''; 
   const currentUserFullName = localStorage.getItem('userFullName') || '';
 
-  const [activeTab, setActiveTab] = useState<'TRANG_BI' | 'Y_TE' | 'CO_SO'>('TRANG_BI');
+  const [activeTab, setActiveTab] = useState<'TRANG_BI' | 'Y_TE' | 'CO_SO' | 'TU_TRANG_BI'>('TRANG_BI');
+  
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]); 
+  const [tuTrangBi, setTuTrangBi] = useState<TuTrangBiItem[]>([]); 
   const [logs, setLogs] = useState<ChoMuonLog[]>([]);
   const [loading, setLoading] = useState(false);
+  
   const [borrowModal, setBorrowModal] = useState<EquipmentItem | null>(null);
   const [borrowQty, setBorrowQty] = useState(1);
   const [confirmData, setConfirmData] = useState<ChoMuonLog | null>(null);
@@ -65,8 +75,17 @@ export default function Equipment() {
     try {
       const { data: eqData } = await supabase.from('Equipment').select('*').order('VatChat');
       if (eqData) setEquipment(eqData);
+      
       const { data: dbLogs } = await supabase.from('ChoMuon').select('*').order('id', { ascending: false });
       if (dbLogs) setLogs(dbLogs);
+
+      const { data: tuData, error: tuErr } = await supabase.from('TuTrangBi').select('*').order('id');
+      if (tuErr) {
+          console.error("LỖI SUPABASE (TuTrangBi):", tuErr);
+      } else if (tuData) {
+          setTuTrangBi(tuData);
+      }
+
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -90,7 +109,7 @@ export default function Equipment() {
     }
 
     return {
-      vuKhi: active.filter(l => l.VatChat.toUpperCase().includes('AK') || l.VatChat.toUpperCase().includes('CKC') || l.VatChat.toUpperCase().includes('LỰU ĐẠN') || l.VatChat.toUpperCase().includes('LĐ')),
+      vuKhi: active.filter(l => l.VatChat.toUpperCase().includes('AK') || l.VatChat.toUpperCase().includes('CKC') || l.VatChat.toUpperCase().includes('LỰU ĐẠN') || l.VatChat.toUpperCase().includes('LĐ') || l.VatChat.toUpperCase().includes('TỦ') || l.VatChat.toUpperCase().includes('TU')),
       mayBan: active.filter(l => l.VatChat.toUpperCase().includes('MÁY BẮN') || l.VatChat.toUpperCase().includes('MBT') || l.VatChat.toUpperCase().includes('TBS')),
       coSo: active.filter(l => getCategory(l.VatChat) === 'CO_SO'),
       yTe: active.filter(l => getCategory(l.VatChat) === 'Y_TE'),
@@ -148,6 +167,35 @@ export default function Equipment() {
     finally { setLoading(false); setTimeout(() => setIsCooldown(false), 3000); }
   }
 
+  // --- HÀM MƯỢN TỦ ---
+  const handleBorrowCabinet = async (tuItem: TuTrangBiItem) => {
+    if (isCooldown) return;
+    setLoading(true);
+    setIsCooldown(true);
+
+    try {
+      await supabase.from('ChoMuon').insert([{ 
+        ngaymuon: new Date().toISOString(), 
+        ngaytra: null,
+        NguoiNhan: currentUserFullName, 
+        VatChat: tuItem.TuSo,           
+        MaVatChat: tuItem.MaSung,       
+        SoLuong: tuItem.tong || 10,  
+        TrangThai: 'Đang giữ', 
+        teacherId: currentUsername 
+      }]);
+
+      showToast(`MƯỢN ${tuItem.TuSo.toUpperCase()} THÀNH CÔNG!`);
+      fetchCloudData();
+    } catch (err) { 
+      console.error(err); 
+      showToast('LỖI KHI MƯỢN TỦ!', 'error');
+    } finally { 
+      setLoading(false); 
+      setTimeout(() => setIsCooldown(false), 3000); 
+    }
+  }
+
   const requestReturn = async () => {
     if (!confirmData || loading) return;
     const qtyToReturn = returnType === 'FULL' ? confirmData.SoLuong : actualReturnQty;
@@ -186,16 +234,15 @@ export default function Equipment() {
         GhiChu: `Quản lý kho ĐÃ XÁC NHẬN NHẬP KHO. (${log.GhiChu})`
       }).eq('id', log.id);
 
-      const eqItem = equipment.find(i => i.VatChat === log.VatChat);
-      if (eqItem) {
-        let newStock = Number(eqItem.SoLuong) + Number(log.SoLuong);
-        
-        // LOGIC CHỐNG VƯỢT TỔNG BAN ĐẦU
-        if (newStock > eqItem.TongBanDau) {
-            newStock = eqItem.TongBanDau;
+      const isCabinet = tuTrangBi.some(t => t.TuSo === log.VatChat);
+      
+      if (!isCabinet) {
+        const eqItem = equipment.find(i => i.VatChat === log.VatChat);
+        if (eqItem) {
+          let newStock = Number(eqItem.SoLuong) + Number(log.SoLuong);
+          if (newStock > eqItem.TongBanDau) { newStock = eqItem.TongBanDau; }
+          await supabase.from('Equipment').update({ SoLuong: newStock }).eq('id', eqItem.id);
         }
-
-        await supabase.from('Equipment').update({ SoLuong: newStock }).eq('id', eqItem.id);
       }
 
       showToast('XÁC NHẬN NHẬP KHO THÀNH CÔNG!');
@@ -204,6 +251,7 @@ export default function Equipment() {
     finally { setLoading(false); }
   };
 
+  // --- LOGIC MÁY QUÉT (ĐÃ XÓA CODE CHẶN LẰNG NHẰNG, DÙNG INPUTMODE NATIVE) ---
   const handleAutoScanner = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.trim().toUpperCase();
     if (val.length >= 2) {
@@ -231,8 +279,8 @@ export default function Equipment() {
             <tr>
               <th>{isReturnTable ? "NGÀY TRẢ" : "NGÀY MƯỢN"}</th>
               <th>NGƯỜI MƯỢN</th>
-              <th>VẬT CHẤT</th>
-              <th>CHI TIẾT</th>
+              <th>VẬT CHẤT / TỦ</th>
+              <th>CHI TIẾT MÃ</th>
               <th>GHI CHÚ</th>
               <th>TRẠNG THÁI</th>
               <th>THAO TÁC</th>
@@ -244,7 +292,11 @@ export default function Equipment() {
                 <td>{new Date(isReturnTable && log.ngaytra ? log.ngaytra : log.ngaymuon).toLocaleString('vi-VN')}</td>
                 <td><b>{log.NguoiNhan}</b></td>
                 <td>{log.VatChat}</td>
-                <td>{log.MaVatChat ? log.MaVatChat.split(', ').map((m: any, i: any) => <span key={i} className="badge-unit">{m}</span>) : <b>SL: {log.SoLuong}</b>}</td>
+                <td>
+                  <div style={{maxHeight: '45px', overflowY: 'auto', paddingRight: '5px'}}>
+                    {log.MaVatChat ? log.MaVatChat.split(/\s+|, /).map((m: any, i: any) => <span key={i} className="badge-unit" style={{margin:'2px', display:'inline-block'}}>{m}</span>) : <b>SL: {log.SoLuong}</b>}
+                  </div>
+                </td>
                 <td style={{fontSize:'11px', color:'#64748b'}}>{log.GhiChu || '-'}</td>
                 <td>
                     <span className={`status-text status-${log.TrangThai === 'Đã trả' ? 'green' : log.TrangThai === 'Chờ xác nhận' ? 'orange' : log.TrangThai === 'Trả thiếu' ? 'orange' : 'red'}`}>
@@ -299,12 +351,25 @@ export default function Equipment() {
       {(userRole === 'ADMIN' || userRole === 'TEACHER') && (
         <>
           <div className="tab-row">
-            <button onClick={() => setActiveTab('TRANG_BI')} className={`tab-btn ${activeTab === 'TRANG_BI' ? 'active' : ''}`}><Package size={18}/> VŨ KHÍ VÀ TRANG BỊ</button>
+            <button onClick={() => setActiveTab('TRANG_BI')} className={`tab-btn ${activeTab === 'TRANG_BI' ? 'active' : ''}`}><Package size={18}/> VŨ KHÍ LẺ</button>
             <button onClick={() => setActiveTab('CO_SO')} className={`tab-btn ${activeTab === 'CO_SO' ? 'active' : ''}`}><Building2 size={18}/> CƠ SỞ</button>
             <button onClick={() => setActiveTab('Y_TE')} className={`tab-btn ${activeTab === 'Y_TE' ? 'active' : ''}`}><HeartPulse size={18}/> Y TẾ</button>
+            <button onClick={() => setActiveTab('TU_TRANG_BI')} className={`tab-btn ${activeTab === 'TU_TRANG_BI' ? 'active' : ''}`}><Archive size={18}/> TỦ TRANG BỊ</button>
           </div>
+          
           <div className="equipment-grid">
-            {equipment.filter(i => i.Loai === activeTab).map(item => (
+            {activeTab === 'TU_TRANG_BI' && tuTrangBi.length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 20px', background: 'white', borderRadius: '20px', border: '1px dashed #cbd5e1' }}>
+                <Archive size={40} style={{ opacity: 0.3, marginBottom: '10px', color: '#64748b' }} />
+                <p style={{ margin: 0, fontWeight: 800, color: '#334155' }}>CHƯA CÓ DỮ LIỆU TỦ</p>
+                <small style={{ color: '#64748b' }}>
+                  Vui lòng kiểm tra lại dữ liệu hoặc cài đặt Row Level Security (RLS) trên Supabase.
+                </small>
+              </div>
+            )}
+
+            {/* VẬT CHẤT LẺ */}
+            {activeTab !== 'TU_TRANG_BI' && equipment.filter(i => i.Loai === activeTab).map(item => (
               <div key={item.id} className="item-card">
                 <h4 className="card-title">{item.VatChat}</h4>
                 <div className="stock-number">{item.SoLuong} <small style={{fontSize:'14px', color:'#94a3b8'}}>/ {item.TongBanDau}</small></div>
@@ -315,6 +380,40 @@ export default function Equipment() {
                 )}
               </div>
             ))}
+
+            {/* TỦ TRANG BỊ */}
+            {activeTab === 'TU_TRANG_BI' && tuTrangBi.length > 0 && tuTrangBi.map(tu => {
+              const isBorrowed = logs.some(l => l.VatChat === tu.TuSo && (l.TrangThai === 'Đang giữ' || l.TrangThai === 'Chờ xác nhận'));
+              
+              const maxGuns = tu.tong || 10;
+              const currentStock = isBorrowed ? 0 : maxGuns;
+
+              return (
+                <div key={tu.id} className="item-card" style={{ border: isBorrowed ? '1.5px solid #f59e0b' : '' }}>
+                  <h4 className="card-title">{tu.TuSo}</h4>
+                  
+                  <div className="stock-number" style={{fontSize: '18px', display: 'flex', alignItems: 'flex-end', gap: '5px'}}>
+                    <span style={{color: currentStock === 0 ? 'var(--danger)' : 'var(--primary-main)'}}>{currentStock}</span>
+                    <small style={{fontSize: '13px', color: '#94a3b8', paddingBottom: '3px'}}>/ {maxGuns} khẩu</small>
+                  </div>
+
+                  <div style={{fontSize: '11px', color: '#64748b', marginBottom: '15px', lineHeight: '1.4', maxHeight: '50px', overflowY: 'auto'}}>
+                    <b>Chi tiết mã:</b> <br/>{tu.MaSung || 'Trống'}
+                  </div>
+                  
+                  {userRole === 'TEACHER' && !isBorrowed && (
+                    <button disabled={isCooldown} onClick={() => handleBorrowCabinet(tu)} className="btn-borrow">
+                      <Archive size={16}/> MƯỢN TỦ NÀY
+                    </button>
+                  )}
+                  {isBorrowed && (
+                    <span className="status-text status-orange" style={{textAlign: 'center', marginTop: '10px', display: 'block', width: '100%'}}>
+                      ĐANG CÓ NGƯỜI MƯỢN
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
       )}
@@ -323,7 +422,7 @@ export default function Equipment() {
         {logData.choXacNhan.length > 0 && (
           <LogTable title="DANH SÁCH ĐỢI QUẢN LÝ KHO XÁC NHẬN NHẬP KHO" data={logData.choXacNhan} icon={Timer} isPendingTable={true} />
         )}
-        <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ" data={logData.vuKhi} icon={Shield} />
+        <LogTable title="NHẬT KÝ MƯỢN VŨ KHÍ & TỦ SÚNG" data={logData.vuKhi} icon={Shield} />
         <LogTable title="NHẬT KÝ MƯỢN CƠ SỞ VẬT CHẤT" data={logData.coSo} icon={Building2} />
         <LogTable title="NHẬT KÝ MƯỢN Y TẾ" data={logData.yTe} icon={HeartPulse} />
         <LogTable title="NHẬT KÝ MƯỢN MÁY BẮN TẬP" data={logData.mayBan} icon={Activity} />
@@ -344,7 +443,7 @@ export default function Equipment() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ ĐÃ NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="NHẬT KÝ ĐĐA NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
         <LogTable title="TỔNG HỢP LỊCH SỬ GIAO DỊCH" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
@@ -358,7 +457,21 @@ export default function Equipment() {
             <div style={{padding:'20px'}}>
               {isScannerRequired(borrowModal.VatChat) ? (
                 <div className="qr-box-scanner">
-                  <input ref={scanInputRef} type="text" onChange={handleAutoScanner} style={{position:'fixed', left:'-9999px'}} autoFocus />
+                  <input 
+                    ref={scanInputRef} 
+                    type="text" 
+                    onChange={handleAutoScanner} 
+                    /* THUỘC TÍNH MA THUẬT: CHẶN BÀN PHÍM ẢO TRÊN ĐIỆN THOẠI NHƯNG VẪN NHẬN MÁY QUÉT */
+                    inputMode="none" 
+                    autoComplete="off"
+                    style={{
+                      position:'fixed', 
+                      left:'-9999px', 
+                      opacity: 0,
+                      pointerEvents: 'none' /* Chặn luôn việc vô tình bấm trúng */
+                    }} 
+                    autoFocus 
+                  />
                   <div className="scanner-line"></div>
                   <QrCode size={80} color="#15803d" />
                   <p>
