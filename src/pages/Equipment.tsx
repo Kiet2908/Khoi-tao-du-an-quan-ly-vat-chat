@@ -443,8 +443,8 @@ export default function Equipment() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ ĐĐA NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
-        <LogTable title="TỔNG HỢP LỊCH SỬ GIAO DỊCH" data={logData.tatCa} icon={History} isHistory={true} />
+        <LogTable title="NHẬT KÝ ĐÃ NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="TỔNG HỢP LỊCH SỬ MƯỢN" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
       {borrowModal && (
