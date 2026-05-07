@@ -60,8 +60,13 @@ export default function Equipment() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // --- ĐÃ SỬA LẠI LOGIC CHẶN BĂNG TIẾP ĐẠN ---
   const isScannerRequired = (name: string) => {
     const n = name.toUpperCase();
+    // Bỏ qua Băng tiếp đạn (Cho phép mượn nhập số lượng bình thường)
+    if (n.includes('BĂNG TIẾP ĐẠN')) return false;
+    
+    // Các món còn lại có chứa tên dưới đây sẽ bắt quét mã
     return n.includes('AK') || n.includes('CKC') || n.includes('MÁY BẮN') || n.includes('MBT') || n.includes('TBS');
   };
 
@@ -167,7 +172,6 @@ export default function Equipment() {
     finally { setLoading(false); setTimeout(() => setIsCooldown(false), 3000); }
   }
 
-  // --- HÀM MƯỢN TỦ ---
   const handleBorrowCabinet = async (tuItem: TuTrangBiItem) => {
     if (isCooldown) return;
     setLoading(true);
@@ -251,7 +255,6 @@ export default function Equipment() {
     finally { setLoading(false); }
   };
 
-  // --- LOGIC MÁY QUÉT (ĐÃ XÓA CODE CHẶN LẰNG NHẰNG, DÙNG INPUTMODE NATIVE) ---
   const handleAutoScanner = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.trim().toUpperCase();
     if (val.length >= 2) {
@@ -443,8 +446,8 @@ export default function Equipment() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ ĐÃ NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
-        <LogTable title="TỔNG HỢP LỊCH SỬ MƯỢN" data={logData.tatCa} icon={History} isHistory={true} />
+        <LogTable title="NHẬT KÝ ĐĐA NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="TỔNG HỢP LỊCH SỬ GIAO DỊCH" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
       {borrowModal && (
@@ -461,14 +464,13 @@ export default function Equipment() {
                     ref={scanInputRef} 
                     type="text" 
                     onChange={handleAutoScanner} 
-                    /* THUỘC TÍNH MA THUẬT: CHẶN BÀN PHÍM ẢO TRÊN ĐIỆN THOẠI NHƯNG VẪN NHẬN MÁY QUÉT */
                     inputMode="none" 
                     autoComplete="off"
                     style={{
                       position:'fixed', 
                       left:'-9999px', 
                       opacity: 0,
-                      pointerEvents: 'none' /* Chặn luôn việc vô tình bấm trúng */
+                      pointerEvents: 'none' 
                     }} 
                     autoFocus 
                   />
