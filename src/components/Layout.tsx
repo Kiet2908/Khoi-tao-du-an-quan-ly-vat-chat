@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Box, BookOpen, Camera, LogOut, Users, Code2, MessageCircle } from 'lucide-react';
+import { Shield, Box, BookOpen, Camera, LogOut, Users, } from 'lucide-react'; {/* Code2, MessageCircle */}
 
 export default function Layout() {
   const navigate = useNavigate();
