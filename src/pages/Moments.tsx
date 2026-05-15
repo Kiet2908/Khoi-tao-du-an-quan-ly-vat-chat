@@ -103,19 +103,19 @@ export default function Moments() {
       {/* Toast thông báo */}
       {toast && (
         <div style={toastStyle(toast.type)}>
-          {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+          {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}{/*In ra thông báo theo desing đã được tạo ra từ trước*/}
           <span>{toast.msg}</span>
         </div>
       )}
 
       {/* Header tông Xanh lá */}
       <div className="header-moment">
-        <Camera size={40} color="white" style={{ marginBottom: '15px' }} />
+        <Camera size={40} color="white" style={{ marginBottom: '15px' }} />{/*chỉnh lại phần icon camera thành màu xanh*/}
         <h2 className="header-title">KỈ NIỆM QUỐC PHÒNG & AN NINH</h2>
-        <p className="header-sub">Lưu giữ {moments.length} khoảnh khắc hào hùng</p>
+        <p className="header-sub">Lưu giữ {moments.length} khoảnh khắc hào hùng</p>{/*lưu lại số lượng đã được lưu trên database bằng cách lưu trên biến lenght được cộng từ các giá trị đã có sẵn*/}
         
-        <button onClick={() => fileInputRef.current?.click()} className="upload-btn" disabled={loading}>
-          {loading ? <Loader2 className="animate-spin" size={18} /> : <Plus size={20} />}
+        <button onClick={() => fileInputRef.current?.click()} className="upload-btn" disabled={loading}>{/*nút bấm để đăng ảnh và đưa dữ liệu về base 64px*/ }
+          {loading ? <Loader2 className="animate-spin" size={18} /> : <Plus size={20} />}{/*dùng để có animation để đợi tải ảnh*/}
           {loading ? "ĐANG TẢI..." : "THÊM KỶ NIỆM"}
         </button>
         <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleFileUpload} />
@@ -124,14 +124,14 @@ export default function Moments() {
       {/* Grid Album ảnh */}
       <div className="moments-grid">
         {moments.map((m) => (
-          <div key={m.id} className="moment-card" onClick={() => setSelectedImage(m.imageUrl)}>
+          <div key={m.id} className="moment-card" onClick={() => setSelectedImage(m.imageUrl)}>{/*Lưu hình ảnh được đăng dô 1 cái khung được render ra*/}
             <img src={m.imageUrl} alt="moment" className="img-style" />
             <p className="caption-text">{m.caption}</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', color: '#64748b', fontSize: '11px' }}>
-              <MapPin size={12} /> {m.date}
+              <MapPin size={12} /> {m.date}{/*dùng để lưu ại ngày giờ ngay lúc đăng hiện tại*/}
             </div>
-            <button className="del-btn" onClick={(e) => { e.stopPropagation(); setDeleteId(m.id); }}>
-              <Trash2 size={16} />
+            <button className="del-btn" onClick={(e) => { e.stopPropagation(); setDeleteId(m.id); }}>{/*đây là nút xóa dùng để xóa đi hình ảnh muốn xóa và sẽ chọn đúng id để xóa*/}
+              <Trash2 size={16} />{/*icon thùng rác*/}
             </button>
           </div>
         ))}

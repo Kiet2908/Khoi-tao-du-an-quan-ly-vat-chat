@@ -357,7 +357,7 @@ export default function Equipment() {
             <button onClick={() => setActiveTab('TRANG_BI')} className={`tab-btn ${activeTab === 'TRANG_BI' ? 'active' : ''}`}><Package size={18}/> VŨ KHÍ LẺ</button>
             <button onClick={() => setActiveTab('CO_SO')} className={`tab-btn ${activeTab === 'CO_SO' ? 'active' : ''}`}><Building2 size={18}/> CƠ SỞ</button>
             <button onClick={() => setActiveTab('Y_TE')} className={`tab-btn ${activeTab === 'Y_TE' ? 'active' : ''}`}><HeartPulse size={18}/> Y TẾ</button>
-            <button onClick={() => setActiveTab('TU_TRANG_BI')} className={`tab-btn ${activeTab === 'TU_TRANG_BI' ? 'active' : ''}`}><Archive size={18}/> TỦ TRANG BỊ</button>
+             {/* <button onClick={() => setActiveTab('TU_TRANG_BI')} className={`tab-btn ${activeTab === 'TU_TRANG_BI' ? 'active' : ''}`}><Archive size={18}/> TỦ TRANG BỊ</button>*/}
           </div>
           
           <div className="equipment-grid">
