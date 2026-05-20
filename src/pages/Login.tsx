@@ -132,7 +132,7 @@ export default function Login() {
         </form>
 
         <div className="login-footer">
-           {/* <span>© 2026 Developed by Pham Gia Tuan Kiet</span>*/}
+           <span>© 2026 Developed by Pham Gia Tuan Kiet</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Box, BookOpen, Camera, LogOut, Users, } from 'lucide-react'; {/* Code2, MessageCircle */}
+import { Shield, Box, BookOpen, Camera, LogOut, Users, Code2, MessageCircle } from 'lucide-react'; {/* */}
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export default function Layout() {
 
           {/* DEVELOPER SECTION */}
           <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-             {/* <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '15px', marginBottom: '15px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '15px', marginBottom: '15px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Code2 size={14} color="#fbbf24" />
                 <span style={{ fontSize: '14px', color: '#fbbf24', fontWeight: '900' }}>DEVELOPER</span>
@@ -81,7 +81,7 @@ export default function Layout() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '15px', fontWeight: '800', background: 'rgba(251,191,36,0.16)', padding: '5px 10px', borderRadius: '8px', width: 'fit-content' }}>
                 <MessageCircle size={13} strokeWidth={3} />Zalo : 0523.732.134
               </div>
-            </div>*/}
+            </div>
             
             <button onClick={handleLogout} className="logout-btn" style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: '0.3s' }}>
               <LogOut size={16} /> Đăng xuất
