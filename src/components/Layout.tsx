@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Box, BookOpen, Camera, LogOut, Users, Code2, MessageCircle } from 'lucide-react'; {/* */}
+import { Shield, Box, BookOpen, Camera, LogOut, Users,} from 'lucide-react'; {/* Code2, MessageCircle  */}
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export default function Layout() {
           </nav>
 
           {/* DEVELOPER SECTION */}
-          <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          {/*<div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
               <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '15px', marginBottom: '15px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Code2 size={14} color="#fbbf24" />
@@ -86,7 +86,7 @@ export default function Layout() {
             <button onClick={handleLogout} className="logout-btn" style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: '0.3s' }}>
               <LogOut size={16} /> Đăng xuất
             </button>
-          </div>
+          </div>*/}
         </aside>
 
         {/* BOTTOM NAV MOBILE */}
