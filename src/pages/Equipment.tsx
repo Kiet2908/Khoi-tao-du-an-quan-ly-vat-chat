@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Plus, Shield, X, QrCode, Activity, 
   Package, HeartPulse, Building2, Undo2, ArrowRightCircle, CheckCircle2,
-  History, AlertCircle, Calendar, Timer, UserCheck, Archive
+  History, AlertCircle, Calendar, Timer, UserCheck, Archive, Download
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { supabase } from '../supabaseClient'; 
 import './Equipment.css';
 
@@ -60,13 +61,10 @@ export default function Equipment() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // --- ĐÃ SỬA LẠI LOGIC CHẶN BĂNG TIẾP ĐẠN ---
+  // --- LOGIC CHẶN BĂNG TIẾP ĐẠN ---
   const isScannerRequired = (name: string) => {
     const n = name.toUpperCase();
-    // Bỏ qua Băng tiếp đạn (Cho phép mượn nhập số lượng bình thường)
     if (n.includes('BĂNG TIẾP ĐẠN')) return false;
-    
-    // Các món còn lại có chứa tên dưới đây sẽ bắt quét mã
     return n.includes('AK') || n.includes('CKC') || n.includes('MÁY BẮN') || n.includes('MBT') || n.includes('TBS');
   };
 
@@ -123,6 +121,34 @@ export default function Equipment() {
       tatCa: historyLogs 
     };
   }, [logs, equipment, userRole, currentUsername, startDate, endDate]);
+
+  // --- HÀM XUẤT FILE EXCEL ---
+  const exportToExcel = (data: ChoMuonLog[], filename: string = 'Nhat_Ky_Cho_Muon.xlsx') => {
+    if (!data || data.length === 0) {
+      showToast('Không có dữ liệu để xuất file!', 'error');
+      return;
+    }
+
+    const excelData = data.map((item, index) => ({
+      'STT': index + 1,
+      'ID Log': item.id || '',
+      'Ngày mượn': item.ngaymuon ? new Date(item.ngaymuon).toLocaleString('vi-VN') : '',
+      'Ngày trả': item.ngaytra ? new Date(item.ngaytra).toLocaleString('vi-VN') : '',
+      'Người mượn (NguoiNhan)': item.NguoiNhan || '',
+      'Mã Giáo viên (teacherId)': item.teacherId || '',
+      'Vật chất / Tủ (VatChat)': item.VatChat || '',
+      'Chi tiết mã (MaVatChat)': item.MaVatChat || '',
+      'Số lượng (SoLuong)': item.SoLuong || 0,
+      'Trạng thái (TrangThai)': item.TrangThai || '',
+      'Ghi chú (GhiChu)': item.GhiChu || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LichSuChoMuon");
+    XLSX.writeFile(workbook, filename);
+    showToast('Xuất file Excel thành công!');
+  };
 
   const handleTeacherBorrow = async (item: EquipmentItem, qty: number, qrCodeData?: string) => {
     if (isCooldown) return;
@@ -341,7 +367,8 @@ export default function Equipment() {
         </div>
       )}
 
-      <div className="header-section">
+      {/* HEADER SECTION NẰM TRÊN CÙNG TÍCH HỢP NÚT XUẤT FILE EXCEL */}
+      <div className="header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
           <Shield size={32} color="#ffffff" />
           <div>
@@ -349,6 +376,24 @@ export default function Equipment() {
             <p className="sub-title-text">Tổ bộ môn Giáo dục quốc phòng và an ninh - TDC</p>
           </div>
         </div>
+
+        {/* NÚT XUẤT FILE EXCEL ĐÃ ĐƯỢC CHUYỂN LÊN TRÊN CÙNG */}
+        <button 
+          onClick={() => exportToExcel(logData.tatCa, `Tong_Hop_Lich_Su_Cho_Muon_${new Date().toISOString().split('T')[0]}.xlsx`)} 
+          className="btn-borrow" 
+          style={{ 
+            background: '#10b981', 
+            padding: '10px 18px', 
+            fontSize: '14px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer'
+          }}
+        >
+          <Download size={18} /> XUẤT FILE EXCEL
+        </button>
       </div>
 
       {(userRole === 'ADMIN' || userRole === 'TEACHER') && (
@@ -446,7 +491,7 @@ export default function Equipment() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <LogTable title="NHẬT KÝ ĐĐA NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
+        <LogTable title="NHẬT KÝ ĐÃ NHẬP KHO (QUẢN LÝ KHO ĐÃ XÁC NHẬN)" data={logData.daTra} icon={CheckCircle2} isReturnTable={true} />
         <LogTable title="TỔNG HỢP LỊCH SỬ GIAO DỊCH" data={logData.tatCa} icon={History} isHistory={true} />
       </div>
 
